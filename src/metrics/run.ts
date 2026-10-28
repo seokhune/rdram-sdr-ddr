@@ -1,3 +1,11 @@
+/*
+  시나리오를 틱 루프가 끝날 때까지 돌리고, 대역폭과 지연을 셉니다.
+  대역폭은 미리 적은 상수가 아닙니다. 옮긴 바이트와 끝난 틱으로 계산합니다.
+  1틱이 1.25ns이므로, 틱당 1바이트는 초당 800MB입니다.
+  바이트 × 800 / 틱 의 내림이 MB/s입니다.
+  최고 속도는 SDR이 틱당 1바이트(800MB/s), DDR과 RDRAM이 틱당 2바이트(1600MB/s)입니다.
+*/
+
 import { stepDevice, primeRow, enqueue, makeDdr, makeSdr, type MemJob, type Track } from '../wrappers/jedec.ts'
 import {
   makeRdram,
@@ -58,6 +66,7 @@ const PEAK_BYTES_PER_TICK: Record<ArchName, number> = {
   rdram: 2,
 }
 
+/* 평균의 내림. 빈 목록은 0입니다. */
 function mean(values: number[]): number {
   if (values.length === 0) return 0
   let sum = 0
@@ -65,15 +74,39 @@ function mean(values: number[]): number {
   return Math.floor(sum / values.length)
 }
 
+/*
+슈도코드
+mean(값들):
+  비어 있으면 0
+  합을 개수로 나눈 내림을 반환
+*/
+
+/* 옮긴 바이트와 걸린 틱으로 MB/s를 냅니다. 틱당 1바이트가 800MB/s입니다. */
 function bandwidth(bytes: number, ticks: number): number {
   if (ticks <= 0) return 0
   return Math.floor((bytes * 800) / ticks)
 }
 
+/*
+슈도코드
+bandwidth(바이트, 틱):
+  틱이 0 이하면 0
+  반환 내림(바이트 × 800 / 틱)
+*/
+
+/* 최고 속도 대비 백분율의 내림. SDR 분모는 틱×1, DDR과 RDRAM 분모는 틱×2입니다. */
 function efficiency(arch: ArchName, bytes: number, ticks: number): number {
   if (ticks <= 0) return 0
   return Math.floor((bytes * 100) / (ticks * PEAK_BYTES_PER_TICK[arch]))
 }
+
+/*
+슈도코드
+efficiency(방식, 바이트, 틱):
+  틱이 0 이하면 0
+  최고 = SDR이면 1, DDR과 RDRAM이면 2
+  반환 내림(바이트 × 100 / (틱 × 최고))
+*/
 
 function span(start: number | null, end: number | null): number {
   if (start === null || end === null) return 0

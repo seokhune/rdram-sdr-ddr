@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>RDRAM, SDR, DDR 강의</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #12151a;
+    --ink: #f6f2ea;
+    --muted: #b7aea2;
+    --card: #1c222b;
+    --line: #343b46;
+    --sdr: #f0924a;
+    --ddr: #6aa4ff;
+    --rdram: #4dce88;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+    font-family: "Segoe UI", sans-serif; word-break: keep-all;
+  }
+  .slide {
+    display: none; position: absolute; inset: 0;
+    width: 100vw; height: 100vh; padding: 28px 48px 72px; overflow: auto;
+  }
+  .slide.on { display: block; animation: in .22s ease; }
+  @keyframes in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .kicker { color: var(--muted); font-size: 15px; margin-bottom: 6px; }
+  h1 { font-size: 32px; line-height: 1.28; margin: 0 0 12px; max-width: 24em; }
+  .say {
+    font-size: 20px; line-height: 1.45; margin: 0 0 14px; max-width: 48em;
+    background: #2a2318; border-left: 6px solid var(--sdr); border-radius: 10px; padding: 12px 16px;
+  }
+  p { font-size: 18px; line-height: 1.5; margin: 0 0 10px; max-width: 52em; }
+  .wide, .row2 { display: grid; grid-template-columns: 1.15fr .85fr; gap: 20px; align-items: start; }
+  @media (max-width: 980px) { .wide, .row2 { grid-template-columns: 1fr; } }
+  .bars { display: flex; flex-direction: column; gap: 12px; }
+  .lane { display: grid; grid-template-columns: 88px 1fr auto; gap: 10px; align-items: center; font-size: 17px; }
+  .track { height: 26px; background: #2a313c; border-radius: 8px; overflow: hidden; }
+  .fill { display: block; height: 100%; border-radius: 8px; }
+  .sdr { color: var(--sdr); } .ddr { color: var(--ddr); } .rdram { color: var(--rdram); }
+  .fill.sdr { background: var(--sdr); } .fill.ddr { background: var(--ddr); } .fill.rdram { background: var(--rdram); }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .cards.two { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 900px) { .cards, .cards.two { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+  .card h2 { margin: 8px 0; font-size: 20px; }
+  .card p { font-size: 16px; }
+  .swatch { height: 10px; border-radius: 99px; }
+  .steps { list-style: none; margin: 0; padding: 0; }
+  .steps li { display: grid; grid-template-columns: 46px 1fr; gap: 12px; margin: 0 0 12px; font-size: 18px; line-height: 1.45; }
+  .steps b {
+    width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
+    background: #243044; color: var(--ddr); font-size: 20px;
+  }
+  ol.toc { margin: 0; padding-left: 1.2em; font-size: 18px; line-height: 1.55; }
+  .name {
+    display: inline-block; background: #10141a; border: 1px solid var(--line);
+    border-radius: 8px; padding: 2px 8px; font-family: Consolas, monospace; font-size: .92em;
+  }
+  .note { color: var(--muted); font-size: 15px; }
+  svg.pic { width: 100%; height: auto; max-height: 240px; }
+  table { width: 100%; border-collapse: collapse; font-size: 16px; margin: 8px 0 12px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 7px 8px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  pre {
+    margin: 0; background: #10141a; border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 14px; font-family: Consolas, monospace; font-size: 14px; line-height: 1.45; overflow: auto;
+  }
+  button {
+    font: inherit; font-size: 17px; color: var(--ink); background: #2a3342;
+    border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer;
+  }
+  .bar { position: fixed; left: 0; bottom: 0; height: 6px; background: var(--rdram); }
+  .foot, .hint {
+    position: fixed; bottom: 12px; color: var(--muted); font-size: 15px;
+    background: var(--bg); z-index: 3; padding: 4px 8px;
+  }
+  .foot { right: 16px; } .hint { left: 16px; }
+  .playing .w { animation: pop 2.6s linear infinite; opacity: .25; }
+  .w:nth-child(1) { animation-delay: .05s; }
+  .w:nth-child(2) { animation-delay: .45s; }
+  .w:nth-child(3) { animation-delay: .85s; }
+  .w:nth-child(4) { animation-delay: 1.25s; }
+  @keyframes pop { 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: .25; } }
+</style>
+</head>
+<body>
+<main id="deck">
+
+<section class="slide">
+  <div class="kicker">한눈에</div>
+  <h1>이미 책장이 열려 있을 때, 책 8권의 시간입니다.</h1>
+  <p class="say">주황 SDR 100ns, 파랑 DDR 55ns, 초록 RDRAM 78.75ns. 막대가 짧을수록 빠릅니다. DDR이 가장 짧습니다.</p>
+  <div class="bars">
+    <div class="lane"><span class="sdr">SDR</span><div class="track"><i class="fill sdr" style="width:100%"></i></div><b>80칸 · 100ns</b></div>
+    <div class="lane"><span class="ddr">DDR</span><div class="track"><i class="fill ddr" style="width:55%"></i></div><b>44칸 · 55ns</b></div>
+    <div class="lane"><span class="rdram">RDRAM</span><div class="track"><i class="fill rdram" style="width:79%"></i></div><b>63칸 · 78.75ns</b></div>
+  </div>
+  <p class="note">막대 길이는 80, 44, 63에 맞춘 것입니다. 칸 하나의 시간은 1.25ns입니다. 80 × 1.25 = 100. 오른쪽 화살표나 스페이스로 다음 장입니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">보는 법</div>
+  <h1>프로그램 언어는 몰라도 됩니다.</h1>
+  <p class="say">이 시뮬레이터는 TypeScript로 적혀 있습니다. 문법 대신, 일마다 붙은 이름표만 보면 됩니다.</p>
+  <div class="cards">
+    <div class="card"><div class="swatch" style="background:var(--sdr)"></div><h2>이름표</h2><p><span class="name">tryActivate</span> 처럼 생긴 단어는 함수 이름입니다. "이 일을 하는 사람"이라고 읽으면 됩니다.</p></div>
+    <div class="card"><div class="swatch" style="background:var(--ddr)"></div><h2>칸</h2><p>시간은 소수로 더하지 않고, 1.25ns짜리 칸을 밉니다. 그 칸을 틱이라고 부릅니다.</p></div>
+    <div class="card"><div class="swatch" style="background:var(--rdram)"></div><h2>도서관</h2><p>방, 책장, 카트, 복도로 세 메모리의 차이를 봅니다. 숫자는 폴더의 상수와 측정 표에서만 가져왔습니다.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">지도</div>
+  <h1>여덟 덩어리로 나뉩니다.</h1>
+  <div class="row2">
+    <ol class="toc">
+      <li>배경. 시뮬레이터가 재는 것.</li>
+      <li>용어. 도서관 비유로 한 번씩.</li>
+      <li>SDR, DDR, RDRAM이 읽는 순서.</li>
+      <li>이름표가 그 순서를 어떻게 흉내 내는지.</li>
+      <li>열린 책장의 식과, 4권에서 바뀌는 순서.</li>
+      <li>폴더에 있는 검사와, 없는 검사.</li>
+      <li>README와 주석이 가리키는 출처.</li>
+      <li>리프레시. 지금 간격은 1,562칸입니다.</li>
+    </ol>
+    <div class="card">
+      <p>주소 끝의 #slide-N 이 현재 장입니다. 새로고침해도 그 장에 남습니다.</p>
+      <button type="button" data-go="4">1부부터</button>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">1부 · 배경</div>
+  <h1>시간은 더하지 않고, 줄을 한 칸씩 밉니다.</h1>
+  <p class="say">요청이 오면 SDR, DDR, RDRAM 중 하나의 문으로 같은 도서관을 움직입니다. 도서관 본체는 한 벌입니다.</p>
+  <svg class="pic" viewBox="0 0 720 150">
+    <rect x="30" y="40" width="140" height="70" rx="10" fill="#2a2118" stroke="#f0924a" stroke-width="3"/>
+    <rect x="200" y="40" width="140" height="70" rx="10" fill="#182438" stroke="#6aa4ff" stroke-width="3"/>
+    <rect x="370" y="40" width="140" height="70" rx="10" fill="#143024" stroke="#4dce88" stroke-width="3"/>
+    <polygon points="530,75 600,40 600,110" fill="#4dce88"/>
+    <text x="100" y="82" text-anchor="middle" fill="#f6f2ea" font-size="20">나감</text>
+    <text x="270" y="82" text-anchor="middle" fill="#f6f2ea" font-size="20">한 칸</text>
+    <text x="440" y="82" text-anchor="middle" fill="#f6f2ea" font-size="20">방금 넣음</text>
+    <text x="620" y="82" text-anchor="middle" fill="#102018" font-size="18">밀기</text>
+  </svg>
+  <p>깊이 3인 줄이면 넣은 책이 세 번 밀린 뒤에 나옵니다. 이름표는 <span class="name">pushDelay</span> 입니다. "지금 + 3"이라고 알람을 적지 않습니다. 앞사람이 복도를 쓰는 동안에도 줄은 밀리므로 일이 겹칩니다. 대역폭과 지연은 그 칸 루프가 끝난 뒤에 셉니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">1부 · 배경</div>
+  <h1>폴더가 인용하는 이름은 이만큼입니다.</h1>
+  <div class="cards">
+    <div class="card"><h2>2001 Table 1</h2><p>README는 시간표의 출처를 "Cuppu and Jacob, 2001, Table 1"이라고만 적습니다. 논문의 정식 제목은 이 폴더에 없습니다.</p></div>
+    <div class="card"><h2>1999 §5.1</h2><p>SPEC은 리프레시 모양만 이 절에 겁니다. Rambus는 방 하나씩, 일반 DRAM은 방 전체가 같이 멈춘다는 문장입니다.</p></div>
+    <div class="card"><h2>ISSI 부품</h2><p>명령 핀은 ISSI IS43R16800CC 표입니다. 그 부품의 CL=2 그림만 시계를 6칸으로 둡니다. 본 비교의 시계는 8칸입니다.</p></div>
+  </div>
+  <p>"1999년에는 역전이 있고 2001년에는 없다"는 문장은 README와 소스에 없습니다. 뒤에서 코드가 실제로 보여주는 순서만 말합니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">1부 · 세 문</div>
+  <h1>같은 책을, 다른 문으로 나릅니다.</h1>
+  <p class="say">SDR은 넓은 문을 천천히, DDR은 그 문을 오가며, RDRAM은 좁은 문을 자주 씁니다.</p>
+  <svg class="pic" viewBox="0 0 720 200">
+    <rect x="20" y="16" width="200" height="130" rx="12" fill="#2a2118" stroke="#f0924a" stroke-width="3"/>
+    <text x="120" y="58" text-anchor="middle" fill="#f0924a" font-size="22">SDR</text>
+    <text x="120" y="90" text-anchor="middle" fill="#f6f2ea" font-size="16">문 너비 64비트</text>
+    <text x="120" y="114" text-anchor="middle" fill="#f6f2ea" font-size="16">10ns에 한 번</text>
+    <rect x="250" y="16" width="200" height="130" rx="12" fill="#182438" stroke="#6aa4ff" stroke-width="3"/>
+    <text x="350" y="58" text-anchor="middle" fill="#6aa4ff" font-size="22">DDR</text>
+    <text x="350" y="90" text-anchor="middle" fill="#f6f2ea" font-size="16">같은 문</text>
+    <text x="350" y="114" text-anchor="middle" fill="#f6f2ea" font-size="16">올라갈 때, 내려갈 때</text>
+    <rect x="480" y="16" width="200" height="130" rx="12" fill="#143024" stroke="#4dce88" stroke-width="3"/>
+    <text x="580" y="58" text-anchor="middle" fill="#4dce88" font-size="22">RDRAM</text>
+    <text x="580" y="90" text-anchor="middle" fill="#f6f2ea" font-size="16">문 너비 16비트</text>
+    <text x="580" y="114" text-anchor="middle" fill="#f6f2ea" font-size="16">2.5ns마다 걸음</text>
+  </svg>
+  <p>10ns는 칸 8개, 2.5ns는 칸 2개입니다. 이름표 <span class="name">CUPPU_CLOCK</span> 의 값은 8, 8, 2입니다. 방은 SDR 4, DDR 4, RDRAM 16입니다. DDR이 미리 쥐는 책은 최대 두 권입니다. 16권이나 32권을 쌓아 두는 상수는 이 폴더에 없습니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">1부 · 질문</div>
+  <h1>문이 좁은데, 왜 다시 재나.</h1>
+  <div class="row2">
+    <div>
+      <p>RDRAM은 한 번에 16비트만 옮깁니다. SDR은 64비트입니다. 폭만 보면 RDRAM이 느려 보입니다.</p>
+      <p>대신 걸음이 더 빠르고, 방이 16개라 한 방이 책장을 찾는 동안 다른 방이 책을 낼 수 있습니다.</p>
+      <p>DDR은 문을 넓히지 않고, 시계가 내려갈 때도 책을 냅니다. 같은 10ns 안에 두 권이 나갑니다.</p>
+      <p>이 시뮬레이터의 질문은 이것입니다. 2001년 Table 1의 나노초를 칸으로 바꾸면, 그 구조 차이가 순서를 뒤집는가.</p>
+    </div>
+    <svg class="pic" viewBox="0 0 360 180">
+      <rect x="16" y="20" width="120" height="28" fill="#f0924a"/><text x="150" y="40" fill="#f6f2ea" font-size="16">SDR 64비트 × 1</text>
+      <rect x="16" y="68" width="56" height="28" fill="#6aa4ff"/><rect x="76" y="68" width="56" height="28" fill="#6aa4ff"/><text x="150" y="88" fill="#f6f2ea" font-size="16">DDR 양쪽</text>
+      <rect x="16" y="116" width="28" height="28" fill="#4dce88"/><text x="150" y="136" fill="#f6f2ea" font-size="16">RDRAM 16비트, 더 자주</text>
+    </svg>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 틱</div>
+  <h1>틱은 이 세계의 한 칸입니다.</h1>
+  <p class="say">벽시계의 나노초를 소수로 더하지 않으려고, 시간을 정수 칸으로 자릅니다. 한 칸은 1.25ns입니다.</p>
+  <div class="cards two">
+    <div class="card"><h2>8칸이 한 덩어리</h2><p>이름표 <span class="name">OCTCYCLE_TICKS</span> 는 8입니다. params.ts 36행. 8 × 1.25ns = 10ns입니다. RDRAM 표찰도 이 8칸을 한 덩어리로 복도를 차지합니다.</p></div>
+    <div class="card"><h2>코드는 칸만 저장</h2><p>80칸은 설명할 때 100ns라고 읽습니다. 저장하는 값은 80입니다. 이후 슬라이드의 나노초는 칸 × 1.25입니다.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 시계</div>
+  <h1>시계는 도서관이 깨어나는 간격입니다.</h1>
+  <p class="say">SDR과 DDR은 전역 칸이 8번 지나야 한 걸음입니다. 매 칸마다 걸으면 속도가 여덟 배로 부풉니다.</p>
+  <svg class="pic" viewBox="0 0 720 140">
+    <polyline points="30,90 110,90 110,30 230,30 230,90 350,90 350,30 470,30 470,90 690,90" fill="none" stroke="#6aa4ff" stroke-width="4"/>
+    <circle cx="110" cy="30" r="8" fill="#f6f2ea"/>
+    <circle cx="230" cy="90" r="8" fill="#f0924a"/>
+    <text x="110" y="18" text-anchor="middle" fill="#f6f2ea" font-size="14">올라감</text>
+    <text x="230" y="122" text-anchor="middle" fill="#f0924a" font-size="14">내려감</text>
+  </svg>
+  <p>이름표 <span class="name">stepDivider</span> 가 이 주기를 셉니다. divider.ts 19행. 나머지가 0이면 올라가는 순간입니다. 주기가 짝수이고 나머지가 절반이면 내려가는 순간입니다. DDR만 내려갈 때 책을 한 권 더 꺼냅니다. 주파수를 두 배로 올린 것이 아니라, 같은 시계의 반대편을 씁니다. RDRAM 시계는 2칸입니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 셀</div>
+  <h1>셀은 전하 한 칸의 비트입니다.</h1>
+  <div class="row2">
+    <div>
+      <p>DRAM은 비트를 조그만 전하로 기억합니다. 전하가 새기 때문에 나중에 리프레시가 필요합니다.</p>
+      <p>셀 하나는 너무 작아서, 바깥에서는 주소를 두 번으로 나눕니다. 먼저 행을 고르고, 그 다음 열을 고릅니다.</p>
+      <p>이 시뮬레이터는 전압을 풀지 않습니다. 셀에 닿기까지의 시간과 복도 점유만 셉니다. 주소는 방, 행, 열 세 정수입니다.</p>
+    </div>
+    <svg class="pic" viewBox="0 0 280 180">
+      <rect x="30" y="16" width="220" height="140" fill="none" stroke="#b7aea2"/>
+      <g fill="#4dce88">
+        <rect x="48" y="32" width="22" height="22"/><rect x="78" y="32" width="22" height="22"/><rect x="108" y="32" width="22" height="22"/>
+        <rect x="48" y="62" width="22" height="22"/><rect x="78" y="62" width="22" height="22"/><rect x="108" y="62" width="22" height="22"/>
+        <rect x="48" y="92" width="22" height="22"/><rect x="78" y="92" width="22" height="22"/><rect x="108" y="92" width="22" height="22"/>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 방</div>
+  <h1>뱅크는 따로 여는 열람실입니다.</h1>
+  <p class="say">한 방이 책장을 찾는 동안, 다른 방은 이미 꺼낸 책을 복도로 보낼 수 있습니다.</p>
+  <svg class="pic" viewBox="0 0 720 160">
+    <g fill="#1c222b" stroke-width="3">
+      <rect x="16" y="16" width="150" height="100" rx="12" stroke="#f0924a"/>
+      <rect x="186" y="16" width="150" height="100" rx="12" stroke="#6aa4ff"/>
+      <rect x="356" y="16" width="150" height="100" rx="12" stroke="#4dce88"/>
+      <rect x="526" y="16" width="150" height="100" rx="12" stroke="#b7aea2"/>
+    </g>
+    <text x="91" y="74" text-anchor="middle" fill="#f6f2ea" font-size="20">방 0</text>
+    <text x="261" y="74" text-anchor="middle" fill="#f6f2ea" font-size="20">방 1</text>
+    <text x="431" y="74" text-anchor="middle" fill="#f6f2ea" font-size="20">방 2</text>
+    <text x="601" y="74" text-anchor="middle" fill="#f6f2ea" font-size="20">방 3</text>
+  </svg>
+  <p>SDR과 DDR은 방이 4개입니다. RDRAM은 16개입니다. 방마다 자기 타이머가 있습니다. 줄 하나로 모든 방을 세우지 않습니다. 방이 많아도 복도가 하나뿐이면 줄이 섭니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 행과 열</div>
+  <h1>행을 먼저 열고, 열로 집어냅니다.</h1>
+  <div class="row2">
+    <svg class="pic" viewBox="0 0 360 180">
+      <rect x="20" y="16" width="320" height="36" fill="#4dce88"/>
+      <rect x="20" y="64" width="320" height="36" fill="#1c222b" stroke="#b7aea2"/>
+      <rect x="20" y="112" width="320" height="36" fill="#1c222b" stroke="#b7aea2"/>
+      <text x="180" y="40" text-anchor="middle" fill="#102018" font-size="16">열린 행. 열만 고르면 됩니다.</text>
+    </svg>
+    <div>
+      <p>책장 한 줄이 행입니다. 그 줄의 몇 번째 책이 열입니다.</p>
+      <p>행을 여는 시간은 SDR 24칸, DDR 16칸, RDRAM 14칸입니다. 24칸은 30ns, 14칸은 17.5ns입니다.</p>
+      <p>이미 그 행이 열려 있으면 행 비용을 다시 내지 않습니다. 이것을 행 적중이라고 합니다. README는 이 행 시간이 부품 설명서의 tRCD와 같은 칸이 아니라고 적습니다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 카트</div>
+  <h1>센스 앰프는 꺼내 둔 카트입니다.</h1>
+  <p class="say">행을 열면 그 줄이 카트 위로 올라옵니다. 카트가 차 있는 동안 그 방에서 열 읽기가 짧습니다.</p>
+  <svg class="pic" viewBox="0 0 720 140">
+    <rect x="80" y="16" width="560" height="28" fill="#6aa4ff"/>
+    <rect x="220" y="64" width="280" height="48" rx="10" fill="#1c222b" stroke="#f6f2ea"/>
+    <text x="360" y="94" text-anchor="middle" fill="#f6f2ea" font-size="18">센스 앰프 카트</text>
+  </svg>
+  <p>다른 책장을 보려면 카트를 먼저 비웁니다. 프로그램은 이 카트를 상태 이름 active와 열린 행 번호로 기억합니다. 전압 증폭기는 풀지 않습니다. RDRAM은 카트 자리가 방 수보다 하나 많습니다. 그 제약은 뒤에서 17자리로 봅니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 비우기</div>
+  <h1>프리차지는 카트를 비우는 일입니다.</h1>
+  <div class="cards two">
+    <div class="card"><h2>세 방식 모두 16칸</h2><p>이름표 <span class="name">CUPPU_T_RP</span> 는 16, 16, 16입니다. 20ns입니다. 다른 행을 읽으려면 열린 행을 닫는 고정 시간입니다.</p></div>
+    <div class="card"><h2>0이 되는 그 칸에 끝</h2><p>이름표 <span class="name">tryPrecharge</span> 는 방이 이미 열려 있을 때만 받습니다. bank.ts 47행. 타이머가 0이 되는 장치 칸에 방이 비워집니다. 0을 본 다음 칸에 바꾸면 한 칸 늦습니다.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 열기</div>
+  <h1>행 활성화는 책장을 카트에 올립니다.</h1>
+  <p class="say">이미 그 책장이 카트에 있으면 다시 올리지 않습니다. 이름표 tryActivate 가 "이미 열려 있음"이라고 답합니다.</p>
+  <div class="cards">
+    <div class="card"><h2>적중</h2><p>같은 행이면 타이머를 시작하지 않습니다. 이름표 <span class="name">isRowHit</span> 가 bank.ts 26행에 있습니다.</p></div>
+    <div class="card"><h2>바쁨</h2><p>방이 비어 있지 않으면 새 책장을 올리지 못합니다. 카트가 아직 올리거나 비우는 중입니다.</p></div>
+    <div class="card"><h2>실제 열기</h2><p>비어 있을 때만 타이머를 채웁니다. 핀 이름은 ACTIVATE 입니다. commands.ts 19행. CS 0, RAS 0, CAS 1, WE 1입니다.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 집기</div>
+  <h1>열 주소는 카트에서 몇 번째 책인지 집습니다.</h1>
+  <div class="bars">
+    <div class="lane"><span class="sdr">SDR</span><div class="track"><i class="fill sdr" style="width:100%"></i></div><b>24칸</b></div>
+    <div class="lane"><span class="ddr">DDR</span><div class="track"><i class="fill ddr" style="width:67%"></i></div><b>16칸</b></div>
+    <div class="lane"><span class="rdram">RDRAM</span><div class="track"><i class="fill rdram" style="width:100%"></i></div><b>24칸</b></div>
+  </div>
+  <p>이름표는 <span class="name">CUPPU_COL_ACCESS</span> 입니다. params.ts 21행. READ 핀은 CS 0, RAS 1, CAS 0, WE 1입니다. 기다리는 동안 값은 열 줄에 있습니다. RDRAM은 열 명령을 내기 전에 열 표찰이 복도를 8칸 차지합니다. 열 시간 24칸과 표찰 8칸은 다른 항목입니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 여러 권</div>
+  <h1>버스트는 카트에서 책을 이어서 집는 횟수입니다.</h1>
+  <p class="say">권수가 많을수록, 책장을 여는 고정 비용의 비중이 작아집니다.</p>
+  <button type="button" class="play">네 권이 나가는 모습</button>
+  <svg class="pic anim" viewBox="0 0 720 110">
+    <rect class="w" x="30" y="24" width="140" height="56" rx="8" fill="#f0924a"/>
+    <rect class="w" x="200" y="24" width="140" height="56" rx="8" fill="#f0924a"/>
+    <rect class="w" x="370" y="24" width="140" height="56" rx="8" fill="#f0924a"/>
+    <rect class="w" x="540" y="24" width="140" height="56" rx="8" fill="#f0924a"/>
+  </svg>
+  <p>SDR은 한 권에 8칸입니다. 이름표 <span class="name">SDR_TRANSFER_TICKS_PER_WORD</span> 가 8입니다. DDR 상수도 권당 8칸으로 적혀 있지만, 올라갈 때와 내려갈 때 한 권씩이라 추가 권은 4칸으로 계산됩니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 복도</div>
+  <h1>채널은 한 번에 한 방향만 쓰는 복도입니다.</h1>
+  <svg class="pic" viewBox="0 0 720 110">
+    <rect x="40" y="30" width="180" height="48" rx="8" fill="#4dce88"/><text x="130" y="60" text-anchor="middle" fill="#102018" font-size="18">행 표찰</text>
+    <rect x="250" y="30" width="180" height="48" rx="8" fill="#6aa4ff"/><text x="340" y="60" text-anchor="middle" fill="#102018" font-size="18">열 표찰</text>
+    <rect x="460" y="30" width="180" height="48" rx="8" fill="#f0924a"/><text x="550" y="60" text-anchor="middle" fill="#102018" font-size="18">데이터</text>
+  </svg>
+  <p>표찰을 붙이는 동안 같은 선으로 책을 같이 나르지 않습니다. 프로그램의 복도 상태는 쉼, 표찰, 데이터입니다. 표찰의 종류는 ROW와 COL 두 글자입니다. rdram.ts 62행. 두 점유 구간이 겹치면 테스트가 실패합니다. 데이터시트에 나오는 ROWA 같은 패킷 이름은 이 프로그램의 이름표가 아닙니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 약속</div>
+  <h1>프로토콜은 복도를 누가 언제 쓰는지의 약속입니다.</h1>
+  <div class="cards two">
+    <div class="card"><h2>SDR, DDR</h2><p>핀 네 개의 표로 명령을 받습니다. 열기, 읽기, 비우기, 리프레시가 있습니다. 명령은 시계가 올라갈 때만 받습니다. 다른 칸에 넣으면 <span class="name">stepDevice</span> 가 거절합니다. jedec.ts 315행.</p></div>
+    <div class="card"><h2>RDRAM</h2><p>핀 표 대신 복도에 표찰을 예약하고, 방이 끝나기를 기다립니다. 방의 상태 이름은 세 문이 같이 씁니다. 도서관을 세 벌 복사하지 않습니다.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 주문</div>
+  <h1>아웃스탠딩은 아직 끝나지 않은 주문입니다.</h1>
+  <p class="say">테이블이 4개면 다섯 번째 손님은 빈 자리가 날 때까지 기다립니다.</p>
+  <svg class="pic" viewBox="0 0 720 140">
+    <rect x="40" y="24" width="120" height="80" rx="12" fill="#182438" stroke="#6aa4ff" stroke-width="3"/>
+    <rect x="190" y="24" width="120" height="80" rx="12" fill="#182438" stroke="#6aa4ff" stroke-width="3"/>
+    <rect x="340" y="24" width="120" height="80" rx="12" fill="#182438" stroke="#6aa4ff" stroke-width="3"/>
+    <rect x="490" y="24" width="120" height="80" rx="12" fill="#182438" stroke="#6aa4ff" stroke-width="3"/>
+  </svg>
+  <p>이름표 <span class="name">makeOutstanding</span> 의 기본 상한은 4입니다. outstanding.ts 6행. <span class="name">tryTrack</span> 은 이미 있는 번호이거나 가득 차면 거절합니다. 10행. RDRAM이 이 함수를 4로 부릅니다. rdram.ts 118행. Crisp 1997의 "네 요청까지" 문장은 이 폴더 파일에 없고, 강의 자료 팩에만 있습니다. 코드에 있는 사실은 상한 4입니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">2부 · 다시 쓰기</div>
+  <h1>리프레시는 전하가 새기 전에 책장을 다시 쓰는 일입니다.</h1>
+  <div class="cards">
+    <div class="card"><div class="swatch" style="background:var(--sdr)"></div><h2>손님이 없어도</h2><p>자명종은 벽시계로 울립니다. 이름표 <span class="name">tickRefresh</span> 입니다. refresh.ts 52행.</p></div>
+    <div class="card"><div class="swatch" style="background:var(--ddr)"></div><h2>기본은 꺼짐</h2><p>실험을 켤 때만 울립니다. 그래서 리프레시와 상관없는 예전 숫자표는 그대로입니다.</p></div>
+    <div class="card"><div class="swatch" style="background:var(--rdram)"></div><h2>멈추는 범위</h2><p>SDR과 DDR은 집 전체의 새 주문을 멈춥니다. RDRAM은 방 하나만 잠그고, 복도는 잠그지 않습니다.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">3부 · SDR</div>
+  <h1>SDR은 10ns마다, 시계가 올라갈 때만 책을 냅니다.</h1>
+  <p class="say">이미 열린 책장에서 8권이면 80칸입니다. 식은 24 + 나머지 7권 × 8칸입니다.</p>
+  <svg class="pic" viewBox="0 0 720 140">
+    <rect x="16" y="40" width="180" height="36" rx="6" fill="#f0924a"/>
+    <text x="106" y="64" text-anchor="middle" fill="#1a120c" font-size="15">첫 책을 고르는 24칸</text>
+    <rect x="206" y="40" width="70" height="36" fill="#c46a32"/>
+    <rect x="280" y="40" width="70" height="36" fill="#c46a32"/>
+    <rect x="354" y="40" width="70" height="36" fill="#c46a32"/>
+    <rect x="428" y="40" width="70" height="36" fill="#c46a32"/>
+    <rect x="502" y="40" width="70" height="36" fill="#c46a32"/>
+    <rect x="576" y="40" width="70" height="36" fill="#c46a32"/>
+    <rect x="650" y="40" width="54" height="36" fill="#c46a32"/>
+  </svg>
+  <p>다른 행이 이미 열려 있으면 비우는 16칸이 앞에 붙습니다. 빈 방의 첫 읽기는 행을 올리는 24칸부터 시작합니다. 방금 막대는 이미 열려 있는 경우만 그린 것입니다. ISSI CL=2 그림은 시계를 6칸으로 두고, 읽기 명령 뒤 두 걸음의 상승에서 첫 책이 나옵니다. README는 그 첫 책을 칸 24라고 적습니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">3부 · SDR</div>
+  <h1>방은 네 상태를 한 방향으로만 돕니다.</h1>
+  <div class="row2">
+    <svg class="pic" viewBox="0 0 360 200">
+      <circle cx="80" cy="46" r="32" fill="#b7aea2"/>
+      <circle cx="260" cy="46" r="32" fill="#1c222b" stroke="#f0924a" stroke-width="3"/>
+      <circle cx="260" cy="146" r="32" fill="#1c222b" stroke="#4dce88" stroke-width="3"/>
+      <circle cx="80" cy="146" r="32" fill="#1c222b" stroke="#6aa4ff" stroke-width="3"/>
+      <text x="80" y="50" text-anchor="middle" fill="#12151a" font-size="13">쉼</text>
+      <text x="260" y="50" text-anchor="middle" fill="#f6f2ea" font-size="12">올리는 중</text>
+      <text x="260" y="150" text-anchor="middle" fill="#f6f2ea" font-size="13">열림</text>
+      <text x="80" y="150" text-anchor="middle" fill="#f6f2ea" font-size="12">비우는 중</text>
+    </svg>
+    <div>
+      <p>상태 이름표는 idle, rowActivating, active, precharging 입니다.</p>
+      <p>타이머를 먼저 1 줄입니다. 결과가 0이고 아직 올리는 중이면, 그 칸에 열린 상태가 됩니다.</p>
+      <p>비우기 타이머가 0이 되면 쉼으로 돌아가고, 열린 행 번호는 비워집니다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">3부 · DDR</div>
+  <h1>DDR은 같은 10ns 안에서 책을 두 번 냅니다.</h1>
+  <p class="say">코어가 걷는 간격은 SDR과 같습니다. 행, 열, 비우기가 각각 16칸입니다. 시계가 내려갈 때도 책을 한 권 더 꺼냅니다.</p>
+  <svg class="pic" viewBox="0 0 720 150">
+    <polyline points="40,110 120,110 120,36 240,36 240,110 360,110 360,36 480,36 480,110 640,110" fill="none" stroke="#6aa4ff" stroke-width="4"/>
+    <circle cx="120" cy="36" r="8" fill="#f6f2ea"/>
+    <circle cx="240" cy="110" r="8" fill="#f0924a"/>
+    <circle cx="360" cy="36" r="8" fill="#f6f2ea"/>
+    <circle cx="480" cy="110" r="8" fill="#f0924a"/>
+    <text x="120" y="24" text-anchor="middle" fill="#f6f2ea" font-size="14">올라감, 1권</text>
+    <text x="240" y="140" text-anchor="middle" fill="#f0924a" font-size="14">내려감, 1권</text>
+  </svg>
+  <p>올라갈 때는 SDR과 DDR이 같이 책을 꺼냅니다. 내려갈 때는 DDR만 <span class="name">drainDdr</span> 을 부릅니다. jedec.ts 327행. 그래서 핀 위의 간격이 SDR의 절반이 됩니다. 열린 책장에서 8권은 44칸, 55ns입니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">3부 · DDR</div>
+  <h1>두 권을 쥐고, 한 권씩 내립니다.</h1>
+  <div class="cards two">
+    <div class="card"><h2>loadPair</h2><p>코어에서 꺼낸 책을 최대 두 칸에 넣습니다. 한 권만 오면 칸 수는 1입니다. prefetch.ts 10행.</p></div>
+    <div class="card"><h2>shiftOut</h2><p>앞칸을 문으로 보내고, 뒷칸을 앞으로 당깁니다. 깊이는 다시 2를 넘지 않습니다. 19행. 다음 책 번호를 짐작해서 쌓아 두는 상자가 아닙니다.</p></div>
+  </div>
+  <p>미리 손에 쥐는 책이 두 권을 넘지 않는 이유입니다. 호출할 때마다 길어지는 목록으로 만들지 않습니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">3부 · RDRAM</div>
+  <h1>RDRAM은 책을 내기 전에 복도에 표찰을 붙입니다.</h1>
+  <p class="say">표찰 8칸, 또 표찰 8칸, 그 다음에 책이 나갑니다. 그래서 문이 좁아도 처음에는 느립니다.</p>
+  <svg class="pic" viewBox="0 0 720 130">
+    <rect x="20" y="36" width="160" height="48" rx="8" fill="#4dce88"/>
+    <text x="100" y="66" text-anchor="middle" fill="#102018" font-size="18">행 표찰 8칸</text>
+    <rect x="200" y="36" width="160" height="48" rx="8" fill="#6aa4ff"/>
+    <text x="280" y="66" text-anchor="middle" fill="#102018" font-size="18">열 표찰 8칸</text>
+    <rect x="380" y="36" width="90" height="48" rx="8" fill="#f0924a"/>
+    <rect x="480" y="36" width="90" height="48" rx="8" fill="#f0924a"/>
+    <rect x="580" y="36" width="90" height="48" rx="8" fill="#f0924a"/>
+  </svg>
+  <p>이름표 <span class="name">startHeader</span> 가 표찰 길이만큼 복도를 차지합니다. rdram.ts 246행. 기본은 8칸입니다. 책장이 닫혀 있으면 행 표찰부터, 이미 열려 있으면 열 표찰부터 갑니다. 표찰이 끝난 뒤에야 방이 책장을 올립니다. 안쪽 묶음은 128비트를 16비트 문으로 8대 1로 내보냅니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">3부 · RDRAM</div>
+  <h1>방 16개가 카트 자리 17개를 나눕니다.</h1>
+  <div class="row2">
+    <svg class="pic" viewBox="0 0 360 150">
+      <g fill="#4dce88">
+        <rect x="10" y="24" width="28" height="40" rx="4"/>
+        <rect x="44" y="24" width="28" height="40" rx="4"/>
+        <rect x="78" y="24" width="28" height="40" rx="4"/>
+        <rect x="112" y="24" width="28" height="40" rx="4"/>
+        <rect x="146" y="24" width="28" height="40" rx="4"/>
+        <rect x="180" y="24" width="28" height="40" rx="4"/>
+        <rect x="214" y="24" width="28" height="40" rx="4"/>
+        <rect x="248" y="24" width="28" height="40" rx="4"/>
+      </g>
+      <text x="16" y="100" fill="#b7aea2" font-size="15">자리 17. 옆 방이 쓰면 나는 못 올림</text>
+    </svg>
+    <div>
+      <p>이름표 <span class="name">HALF_ROW_SLOTS</span> 는 17입니다. params.ts 62행.</p>
+      <p>옆 방이 자리를 쓰고 있으면 열기가 거절됩니다. 비울 때 자리를 돌려주지 않으면 옆 방이 계속 못 엽니다. 테스트가 그 반환을 봅니다.</p>
+      <p>방이 많아도 복도가 표찰과 데이터로 가득하면 방이 병목을 지우지 못합니다. 이 모델에서 DDR과 RDRAM의 최고 속도는 칸마다 2바이트, 초당 1600MB입니다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">3부 · RDRAM</div>
+  <h1>표찰이 복도를 비운 뒤에 데이터가 따라옵니다.</h1>
+  <button type="button" class="play">표찰 다음 데이터</button>
+  <svg class="pic anim" viewBox="0 0 720 120">
+    <rect class="w" x="20" y="30" width="150" height="48" rx="8" fill="#4dce88"/>
+    <rect class="w" x="190" y="30" width="150" height="48" rx="8" fill="#6aa4ff"/>
+    <rect class="w" x="360" y="30" width="100" height="48" rx="8" fill="#f0924a"/>
+    <rect class="w" x="480" y="30" width="100" height="48" rx="8" fill="#f0924a"/>
+  </svg>
+  <p>행을 올리는 14칸과 열을 고르는 24칸은 표찰과 따로 방 타이머에 있습니다. 이 그림은 복도 순서만 보여 줍니다. 열린 책장에서 8권의 총시간은 뒤의 63칸입니다. 그림 막대 길이와 63을 같게 그리지는 않았습니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">3부 · 리프레시</div>
+  <h1>정지가 집 전체인지, 방 하나인지가 다릅니다.</h1>
+  <table>
+    <thead><tr><th></th><th>SDR, DDR</th><th>RDRAM</th></tr></thead>
+    <tbody>
+      <tr><td>간격</td><td>12,500칸</td><td>1,562칸</td></tr>
+      <tr><td>한 번 길이</td><td>SDR 40칸, DDR 32칸</td><td>30칸</td></tr>
+      <tr><td>잠그는 곳</td><td>새 주문 전부</td><td>방 번호가 돌아가는 방 1개</td></tr>
+      <tr><td>이미 꺼낸 책</td><td>계속 나감</td><td>복도는 잠그지 않음</td></tr>
+    </tbody>
+  </table>
+  <p>한 번의 길이는 비우기 시간에 행을 올리는 시간을 더한 값입니다. 이름표 <span class="name">refreshBusyTicks</span> 입니다. RDRAM은 16 + 14 = 30입니다. 집 전체를 보는 이름표는 <span class="name">refreshBlocksAll</span>, 방 하나만 보는 이름표는 <span class="name">refreshBlocksBank</span> 입니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">4부 · 파일</div>
+  <h1>시간 계산은 한 파일이 다 하지 않습니다.</h1>
+  <svg class="pic" viewBox="0 0 720 200">
+    <rect x="260" y="8" width="200" height="36" rx="8" fill="#1c222b" stroke="#f6f2ea"/>
+    <text x="360" y="32" text-anchor="middle" fill="#f6f2ea" font-size="15">params.ts 숫자표</text>
+    <rect x="40" y="70" width="180" height="36" rx="8" fill="#1c222b" stroke="#6aa4ff"/>
+    <text x="130" y="94" text-anchor="middle" fill="#f6f2ea" font-size="15">jedec.ts SDR, DDR</text>
+    <rect x="270" y="70" width="180" height="36" rx="8" fill="#1c222b" stroke="#4dce88"/>
+    <text x="360" y="94" text-anchor="middle" fill="#f6f2ea" font-size="15">rdram.ts 표찰</text>
+    <rect x="500" y="70" width="180" height="36" rx="8" fill="#1c222b" stroke="#f0924a"/>
+    <text x="590" y="94" text-anchor="middle" fill="#f6f2ea" font-size="15">bank.ts 방</text>
+    <rect x="120" y="140" width="200" height="36" rx="8" fill="#1c222b" stroke="#f0924a"/>
+    <text x="220" y="164" text-anchor="middle" fill="#f6f2ea" font-size="15">delay.ts 줄 밀기</text>
+    <rect x="380" y="140" width="200" height="36" rx="8" fill="#1c222b" stroke="#4dce88"/>
+    <text x="480" y="164" text-anchor="middle" fill="#f6f2ea" font-size="15">refresh.ts 자명종</text>
+  </svg>
+  <p>줄을 미는 파일은 주문 상한과 리프레시를 같이 갖지 않습니다. 주문 상한은 outstanding.ts, 자명종은 refresh.ts, SDR과 DDR의 한 걸음은 <span class="name">stepDevice</span>, RDRAM의 한 걸음은 <span class="name">stepRdram</span> 입니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">4부 · 숫자표</div>
+  <h1>나노초는 1.25로 나누면 칸이 됩니다.</h1>
+  <table>
+    <thead><tr><th>이름표</th><th class="sdr">SDR</th><th class="ddr">DDR</th><th class="rdram">RDRAM</th><th>파일 줄</th></tr></thead>
+    <tbody>
+      <tr><td>비우기 CUPPU_T_RP</td><td>16</td><td>16</td><td>16</td><td>9</td></tr>
+      <tr><td>행 올리기</td><td>24</td><td>16</td><td>14</td><td>15</td></tr>
+      <tr><td>열 고르기</td><td>24</td><td>16</td><td>24</td><td>21</td></tr>
+      <tr><td>시계</td><td>8</td><td>8</td><td>2</td><td>27</td></tr>
+      <tr><td>카트 자리</td><td></td><td></td><td>17</td><td>62</td></tr>
+    </tbody>
+  </table>
+  <p>16칸은 20ns, 24칸은 30ns, 14칸은 17.5ns입니다. 파일은 src/core/params.ts 입니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">4부 · deviceSteps</div>
+  <h1>칸이 시계로 나누어떨어지지 않으면 거절합니다.</h1>
+  <div class="row2">
+    <pre>deviceSteps(칸, 시계)
+  나머지가 0이 아니면 오류
+  아니면 칸 ÷ 시계</pre>
+    <div>
+      <p>행 24칸을 SDR 시계 8로 나누면 3걸음입니다. RDRAM 시계 2로 열 24칸을 나누면 12걸음입니다.</p>
+      <p>소수 걸음을 허용하지 않으려고 나누기 전에 나머지를 봅니다. params.ts 98행. 타이머에 넣는 단위는 장치 걸음이고, 전역 칸이 아닙니다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">4부 · 한 번의 길이</div>
+  <h1>리프레시 한 번의 길이는 행을 다시 쓰는 시간입니다.</h1>
+  <div class="bars">
+    <div class="lane"><span class="sdr">SDR</span><div class="track"><i class="fill sdr" style="width:100%"></i></div><b>16 + 24 = 40칸</b></div>
+    <div class="lane"><span class="ddr">DDR</span><div class="track"><i class="fill ddr" style="width:80%"></i></div><b>16 + 16 = 32칸</b></div>
+    <div class="lane"><span class="rdram">RDRAM</span><div class="track"><i class="fill rdram" style="width:75%"></i></div><b>16 + 14 = 30칸</b></div>
+  </div>
+  <p>부품 설명서의 tRFC를 따로 베끼지 않고, 이 모델의 비우기와 행 올리기의 합으로 둡니다. 간격과 길이는 다른 숫자입니다. 간격은 다음 자명종이 오는 벽시계이고, 이 합은 자명종이 켜져 있는 길이입니다. params.ts 92행.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">4부 · pushDelay</div>
+  <h1>기다리는 시간은 칸을 미는 횟수입니다.</h1>
+  <div class="row2">
+    <pre>pushDelay(줄, 새 값)
+  맨 앞 칸을 꺼냄
+  나머지를 한 칸 당김
+  새 값은 맨 뒤에 넣음</pre>
+    <div>
+      <p>깊이가 k이면, 넣은 값이 나오기까지 밀기가 k번입니다. 테스트 m1이 그 횟수를 봅니다.</p>
+      <p>열을 고르는 대기가 이 줄입니다. delay.ts 13행. 문이 아직 앞 버스트로 바쁘면, 줄은 계속 밀리되 나오는 책이 겹침으로 기록됩니다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">4부 · tryActivate</div>
+  <h1>열려 있는 행에는 열기를 다시 내지 않습니다.</h1>
+  <ol class="steps">
+    <li><b>1</b><span>같은 행이면 방 상태는 그대로 두고, 적중이라고만 답합니다.</span></li>
+    <li><b>2</b><span>방이 쉼이 아니면 거절합니다. 카트가 아직 바쁘다는 뜻입니다.</span></li>
+    <li><b>3</b><span>쉼이면 올리는 중으로 바꾸고, 타이머에 행 걸음 수를 넣습니다. bank.ts 35행.</span></li>
+  </ol>
+  <p>매 요청마다 행을 여는 모델은 쓰지 않습니다. 적중을 건너뛰어야 한 번 연 책장에서 여러 권을 집는 모습이 나옵니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">4부 · stepDivider</div>
+  <h1>내려가는 순간은 주기의 한가운데입니다.</h1>
+  <div class="cards">
+    <div class="card"><h2>SDR 시계 8</h2><p>위상 0에서 올라가고, 위상 4에서 내려갑니다. SDR은 내려갈 때 책을 꺼내지 않습니다.</p></div>
+    <div class="card"><h2>DDR</h2><p>같은 내려가는 순간에서 <span class="name">drainDdr</span> 을 한 번 더 부릅니다. 더블 데이터 레이트의 코드 위치입니다.</p></div>
+    <div class="card"><h2>RDRAM 시계 2</h2><p>위상 0이 올라감, 위상 1이 내려감입니다. 복도 표찰의 8칸 시계와는 다른 시계입니다. divider.ts 19행.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">4부 · stepRdram</div>
+  <h1>한 칸에 복도를 줄이고, 코어는 자기 시계에서만 걷습니다.</h1>
+  <ol class="steps">
+    <li><b>1</b><span>시계가 올라갈 때만 도서관 본체가 한 걸음 걷고, 열 줄을 밉니다. rdram.ts 388행.</span></li>
+    <li><b>2</b><span>복도가 표찰이거나 데이터면 남은 칸을 1 줄입니다. 0이 되면 쉼으로 돌아가고 다음 단계로 갑니다.</span></li>
+    <li><b>3</b><span>함수 끝에서 자명종을 한 칸 진행합니다. 402행. 손님이 없어도 벽시계로 울립니다.</span></li>
+  </ol>
+</section>
+
+<section class="slide">
+  <div class="kicker">4부 · tryTrack</div>
+  <h1>다섯 번째 주문은 테이블에 못 앉습니다.</h1>
+  <div class="row2">
+    <pre>tryTrack(테이블, 번호, 값)
+  이미 있는 번호면 거절
+  자리가 상한 이상이면 거절
+  아니면 앉히고 수락</pre>
+    <div>
+      <p>줄을 꺼내는 <span class="name">pullRequest</span> 는 앉은 수가 상한이면 바로 멈춥니다. rdram.ts 179행.</p>
+      <p>자리를 고를 때는 이미 열린 행을 먼저, 그 다음 열 수 있는 빈 방, 그것도 없으면 기다리는 첫 주문입니다. outstanding.ts 10행.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">4부 · tickRefresh</div>
+  <h1>울리는 칸과, 잠금이 풀리는 칸이 분리됩니다.</h1>
+  <div class="cards two">
+    <div class="card"><h2>울리는 칸</h2><p>지금 칸이 다음 예약과 같으면 횟수를 1 올리고, 다음 예약을 간격만큼 뒤로 밀고, 남은 잠금에 바쁜 길이를 넣습니다. refresh.ts 52행.</p></div>
+    <div class="card"><h2>방 하나 모드</h2><p>직전 방의 다음 번호를 잠급니다. 16개면 0부터 15를 돕니다. 66행. 남은 칸이 0이 되면 잠금이 풀립니다. 집 전체 모드는 방 번호를 바꾸지 않고, 남은 시간만 봅니다.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">5부 · 식</div>
+  <h1>열린 책장에서 권수만 늘리면 식이 하나로 닫힙니다.</h1>
+  <div class="bars">
+    <div class="lane"><span class="sdr">SDR</span><div class="track"><i class="fill sdr" style="width:100%"></i></div><span>24 + (권수−1)×8</span></div>
+    <div class="lane"><span class="ddr">DDR</span><div class="track"><i class="fill ddr" style="width:55%"></i></div><span>16 + (권수−1)×4</span></div>
+    <div class="lane"><span class="rdram">RDRAM</span><div class="track"><i class="fill rdram" style="width:79%"></i></div><span>32 + 묶음×8 − 1</span></div>
+  </div>
+  <p>RDRAM 묶음은 권수 × 8을 16으로 나눈 뒤 올림입니다. 화면의 점도 이 식을 그대로 계산합니다. 이름표 <span class="name">closedTicks</span>, viewer/src/format.ts 45행. 시뮬레이터와 식이 어긋나면 점과 곡선이 갈라집니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">5부 · 8권</div>
+  <h1>버스트 8은 80, 44, 63칸입니다.</h1>
+  <table>
+    <thead><tr><th></th><th>식</th><th>칸</th><th>ns</th></tr></thead>
+    <tbody>
+      <tr><td class="sdr">SDR</td><td>24 + 7 × 8</td><td>80</td><td>100</td></tr>
+      <tr><td class="ddr">DDR</td><td>16 + 7 × 4</td><td>44</td><td>55</td></tr>
+      <tr><td class="rdram">RDRAM</td><td>32 + 올림(64÷16) × 8 − 1</td><td>63</td><td>78.75</td></tr>
+    </tbody>
+  </table>
+  <p>올림(4)는 4입니다. 32 + 32 − 1 = 63. 이미 열려 있는 책장에서 8권을 읽는 시간입니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">5부 · 순서</div>
+  <h1>4권부터 RDRAM이 SDR보다 한 칸 짧습니다.</h1>
+  <p class="say">1권과 3권에서는 SDR이 더 짧습니다. DDR은 1권부터 8권까지 항상 가장 짧습니다.</p>
+  <table>
+    <thead><tr><th>권수</th><th class="sdr">SDR</th><th class="ddr">DDR</th><th class="rdram">RDRAM</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>24</td><td>16</td><td>39</td></tr>
+      <tr><td>2</td><td>32</td><td>20</td><td>39</td></tr>
+      <tr><td>3</td><td>40</td><td>24</td><td>47</td></tr>
+      <tr><td>4</td><td>48</td><td>28</td><td>47</td></tr>
+      <tr><td>8</td><td>80</td><td>44</td><td>63</td></tr>
+    </tbody>
+  </table>
+  <p class="note">4권에서 주황 48, 초록 47입니다. 짧은 주문에서는 RDRAM 표찰이 비쌉니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">5부 · DDR</div>
+  <h1>같은 식에서 DDR은 전 구간 가장 짧습니다.</h1>
+  <svg class="pic" viewBox="0 0 720 160">
+    <rect x="20" y="24" width="680" height="28" rx="6" fill="#243044"/>
+    <rect x="20" y="24" width="620" height="28" rx="6" fill="#6aa4ff"/>
+    <text x="36" y="44" fill="#102018" font-size="16">DDR. 표찰 없이 시계의 반대편만 추가</text>
+    <rect x="20" y="70" width="680" height="28" rx="6" fill="#243044"/>
+    <rect x="20" y="70" width="120" height="28" fill="#4dce88"/>
+    <rect x="140" y="70" width="120" height="28" fill="#6aa4ff"/>
+    <rect x="260" y="70" width="360" height="28" fill="#f0924a"/>
+    <text x="20" y="128" fill="#b7aea2" font-size="16">RDRAM. 초록과 파란 표찰이 복도를 먼저 차지합니다.</text>
+  </svg>
+  <p>추가 권이 DDR은 4칸, RDRAM 묶음은 8칸 단위라 권수를 늘려도 DDR이 아래에 있습니다. 최고 바이트는 둘 다 칸당 2바이트, README의 1600 MB/s입니다. 방이 16개여도 표찰이 그 속도를 다 갚지 못합니다. 이 폴더가 돌리는 표는 2001 Table 1입니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">5부 · 이야기</div>
+  <h1>순서 바뀜은 이 숫자표에 붙어 있습니다.</h1>
+  <div class="cards two">
+    <div class="card"><h2>코드가 고정한 것</h2><p>2001 Table 1의 나노초입니다. 그 표로는 RDRAM이 SDR을 4권부터 이기고, DDR은 전 구간에서 이깁니다. README 18행이 저자, 해, 표 번호만 적습니다.</p></div>
+    <div class="card"><h2>폴더에 없는 문장</h2><p>1999년 문헌이 역전을 말하고 2001년이 아니라고 말했다는 대조는 README에 문장으로 없습니다. 행 시간이나 표찰 칸을 바꾸면 4라는 교차점이 움직입니다. 그 실험도 정수 칸으로만 합니다.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">6부 · 검사</div>
+  <h1>테스트는 결과 숫자만 보지 않습니다.</h1>
+  <div class="cards">
+    <div class="card"><h2>m1</h2><p>줄을 k번 밀면 그때 값이 나오는지, 타이머가 0인 그 칸에 상태가 바뀌는지 봅니다.</p></div>
+    <div class="card"><h2>m4</h2><p>앉은 주문이 4를 넘지 않는지, 복도 두 구간이 겹치면 실패하는지 봅니다.</p></div>
+    <div class="card"><h2>m5와 m7</h2><p>리프레시를 끈 예전 행은 그대로여야 합니다. m7은 리프레시를 켠 행만 추가로 고정합니다. 차트 점은 closedTicks 입니다. "192점 불일치 0" 기록은 이 폴더에 없습니다.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">6부 · 없는 것</div>
+  <h1>Lean 증명 파일은 이 저장소에 없습니다.</h1>
+  <div class="row2">
+    <svg class="pic" viewBox="0 0 360 160">
+      <rect x="40" y="24" width="280" height="110" rx="12" fill="#1c222b" stroke="#b7aea2"/>
+      <text x="180" y="88" text-anchor="middle" fill="#b7aea2" font-size="20">.lean 파일 0개</text>
+    </svg>
+    <div>
+      <p>fifo_emergence, rdram_beats_sdr, ddr_wins_all 이라는 정리 이름도 없습니다. 192점을 전부 맞춘 스크립트도 없습니다.</p>
+      <p>그래서 그 세 정리를 통과한 사실처럼 말하지 않습니다. 있는 확인은 Node 테스트와, 화면이 그리는 닫힌 식의 점입니다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">6부 · 대조</div>
+  <h1>주석이 가리키는 문헌과, 코드가 고정한 숫자가 같습니다.</h1>
+  <table>
+    <thead><tr><th>주장</th><th>폴더에서 확인되는 곳</th></tr></thead>
+    <tbody>
+      <tr><td>일반 DRAM 4096회 / 64ms</td><td>README의 ISSI. params.ts 66행은 Davis도 그렇게 말한다고 적음.</td></tr>
+      <tr><td>간격 12,500칸</td><td>COMMODITY_REFRESH_INTERVAL_TICKS, 88행.</td></tr>
+      <tr><td>동시 주문 4</td><td>makeOutstanding(4). Crisp 문장은 자료 팩에만 있음.</td></tr>
+      <tr><td>RDRAM 1,562칸</td><td>RAMBUS_REFRESH_INTERVAL_TICKS, 90행.</td></tr>
+    </tbody>
+  </table>
+  <p>IBM0364164C라는 부품 번호는 자료 팩에 있고, 폴더 주석에는 없습니다. 폴더가 일반 DRAM 부품으로 적은 이름은 ISSI IS43R16800CC입니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">7부 · 2001</div>
+  <h1>Table 1이 칸 표의 출처입니다.</h1>
+  <div class="cards two">
+    <div class="card"><h2>가져온 것</h2><p>비우기, 행, 열, 전송, 방 개수입니다. 상수 이름 앞에 CUPPU_ 를 붙인 이유입니다. 행 시간은 데이터시트 tRCD로 바꿔 읽지 말라고 README가 적습니다.</p></div>
+    <div class="card"><h2>나눈 기록</h2><p>지연을 행, 열, 전송, 겹침으로 나누는 방식을 SPEC은 Cuppu Table 2 방식이라고 부릅니다. 평균을 적는 곳은 metrics/run.ts 입니다.</p></div>
+  </div>
+  <p>README 18행이 저자와 해와 표 번호만 적습니다. 정식 제목은 없어서 여기서 만들지 않습니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">7부 · 1999</div>
+  <h1>이 절에서 가져온 것은 리프레시의 모양입니다.</h1>
+  <div class="cards two">
+    <div class="card"><h2>집 전체</h2><p>SPEC 194행. 일반 DRAM은 방이 같이 멈춘다고 이 절을 인용합니다.</p></div>
+    <div class="card"><h2>방 하나</h2><p>SPEC 197행. Rambus는 내부 방을 하나씩 리프레시한다고 같은 절을 인용합니다.</p></div>
+  </div>
+  <p>예전 주석의 33ms는 지금 숫자표에서 데이터시트 32ms로 바뀌어 있습니다. 1999년 절이 32ms나 1,562칸을 줬다는 문장은 소스에 없습니다. 코드로 남은 것은 모드 둘, 집 전체와 방 하나입니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">7부 · ISSI</div>
+  <h1>핀의 뜻과 일반 DRAM 리프레시 분할은 이 부품입니다.</h1>
+  <p class="say">64ms를 4096으로 나누면 12,500칸입니다. 64ms는 51,200,000칸입니다. 주석이 15.625µs라고 적은 값입니다.</p>
+  <div class="cards two">
+    <div class="card"><h2>명령 핀</h2><p>ACTIVATE와 READ의 0, 1이 COMMAND_TABLE 입니다. commands.ts 19행.</p></div>
+    <div class="card"><h2>CL=2 그림</h2><p>그 검사만 시계를 6칸으로 둡니다. 본 비교의 8칸 시계와는 다른 시험입니다. 상수 이름은 COMMODITY_REFRESH_INTERVAL_TICKS 입니다.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">7부 · Davis</div>
+  <h1>주석은 Davis도 4096회 / 64ms라고 말합니다.</h1>
+  <p>params.ts 66행의 문장입니다. 논문 제목, 연도, IBM0364164C라는 부품명은 그 주석에 없습니다. 부품명은 자료 팩에만 있습니다.</p>
+  <p>코드가 Davis에게서 가져온 동작은 일반 DRAM 간격 12,500칸을 확인하는 문장입니다. RDRAM 간격은 Davis 인용으로 적혀 있지 않습니다. 그래서 일반 DRAM 상수는 그대로 두었고, RDRAM 상수만 데이터시트 쪽으로 옮겨 있습니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">7부 · Samsung</div>
+  <h1>32ms 동안 16,384번 울리라는 뜻입니다.</h1>
+  <svg class="pic" viewBox="0 0 720 150">
+    <rect x="24" y="28" width="180" height="80" rx="12" fill="#143024" stroke="#4dce88" stroke-width="3"/>
+    <text x="114" y="64" text-anchor="middle" fill="#f6f2ea" font-size="18">32ms</text>
+    <text x="114" y="88" text-anchor="middle" fill="#b7aea2" font-size="14">유지해야 하는 시간</text>
+    <text x="230" y="78" fill="#f6f2ea" font-size="28">÷</text>
+    <rect x="280" y="28" width="200" height="80" rx="12" fill="#182438" stroke="#6aa4ff" stroke-width="3"/>
+    <text x="380" y="64" text-anchor="middle" fill="#f6f2ea" font-size="18">16,384번</text>
+    <text x="380" y="88" text-anchor="middle" fill="#b7aea2" font-size="14">방과 행을 모두</text>
+    <text x="510" y="78" fill="#4dce88" font-size="22">= 1,562칸</text>
+  </svg>
+  <p>부품은 Samsung KM416RD8AC, 1999년 10월, Table 19입니다. tREF는 32ms입니다. 그 다이의 RIMM SPD는 16K회 / 32ms, 방은 2×16, 행 주소는 9비트입니다. 2의 14제곱은 16,384입니다. 32ms는 25,600,000칸이고 나누면 1,562.5입니다. 32ms를 넘기지 않으려고 1,562로 내립니다. 64Mbit 시트는 8,192번이라 3,125칸입니다. 이 모델은 128Mbit 쪽을 골랐습니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">7부 · Crisp</div>
+  <h1>동시 주문 4는 코드에 있고, 인용문은 자료 팩에 있습니다.</h1>
+  <p>자료 팩은 Crisp 1997의 "each device can service up to four outstanding requests"를 출처로 적습니다. 그 영문과 1997이라는 해는 README, SPEC, 소스 주석에 없습니다.</p>
+  <p>구현은 상한 4, rdram.ts 118행의 호출, 그리고 m4 테스트입니다. 강의에서는 상한 4를 코드의 사실로 두고, Crisp 문장은 폴더 밖 자료로만 소개합니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">8부 · 일반 DRAM</div>
+  <h1>12,500칸마다 집 전체가 잠깐 쉽니다.</h1>
+  <p class="say">같은 일 2,048건, 한 번에 8건, 시드 7입니다. 포화 줄에서는 끝나는 시각이 움직이지 않습니다.</p>
+  <table>
+    <thead><tr><th></th><th>울린 횟수</th><th>바쁜 칸</th><th>총 칸</th><th>최악 추가</th></tr></thead>
+    <tbody>
+      <tr><td class="sdr">SDR</td><td>10</td><td>400</td><td>131,112</td><td>0</td></tr>
+      <tr><td class="ddr">DDR</td><td>5</td><td>160</td><td>65,564</td><td>32</td></tr>
+    </tbody>
+  </table>
+  <p>이미 문에 쌓인 버스트가 40칸이나 32칸보다 길어서, 멈춘 명령이 문에 도착하기 전에 복도가 아직 바쁩니다. 숫자는 metrics/out/scenarios.csv 의 sustain 행이고, README 표와 같습니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">8부 · 폐기된 간격</div>
+  <h1>6,446칸은 폐기된 가정입니다. 현재 값은 1,562칸입니다.</h1>
+  <div class="cards two">
+    <div class="card"><h2>예전 계산</h2><p>33ms를 일반 DRAM과 같은 4,096으로 나누어 6,446칸으로 올렸습니다. 그 4,096은 RDRAM 데이터시트에 없었고, 주석이 가정이라고 적었습니다.</p></div>
+    <div class="card"><h2>지금 계산</h2><p>128Mbit의 1,562칸이 상수입니다. 3,125칸은 64Mbit 시트의 대안이고, 상수로 들어가 있지 않습니다. 6,446 / 1,562는 약 4.13입니다. 2.06배는 6,446과 3,125를 비교한 말입니다.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">8부 · 측정</div>
+  <h1>간격을 줄이자 포화 줄의 끝이 58칸 밀립니다.</h1>
+  <div class="bars">
+    <div class="lane"><span class="sdr">SDR</span><div class="track"><i class="fill sdr" style="width:8%"></i></div><span>총시간 그대로. 최악 0</span></div>
+    <div class="lane"><span class="ddr">DDR</span><div class="track"><i class="fill ddr" style="width:40%"></i></div><span>총시간 그대로. 최악 32칸</span></div>
+    <div class="lane"><span class="rdram">RDRAM</span><div class="track"><i class="fill rdram" style="width:70%"></i></div><span>총시간 +58칸. 최악 32칸</span></div>
+  </div>
+  <p>RDRAM은 70번 울리고, 바쁜 칸은 2,100입니다. 대역폭 정수는 956에서 955로 내려갑니다. 평균으로 퍼진 추가는 0입니다. 이 시드에서 제일 늦은 한 건은 DDR과 같이 32칸입니다. 방 하나만 160번 두드린 실험은 추가가 0입니다. 잠금이 이미 나가던 운반과 겹쳤기 때문입니다. 한 줄로 400건을 보내면 RDRAM 최악은 26칸, 총시간은 28칸 늘어납니다. 그 400건은 CSV 행이 아니고 README에 있습니다.</p>
+</section>
+
+<section class="slide">
+  <div class="kicker">8부 · 남은 틈</div>
+  <h1>그림의 방은 16개, 부품 설명서의 방은 32개입니다.</h1>
+  <p class="say">울리는 간격은 32개 방을 도는 속도이고, 잠그는 번호는 16개만 돕니다. 그래서 그림 속 각 방은 실제보다 더 자주 잠깁니다.</p>
+  <div class="cards">
+    <div class="card"><h2>유지한 것</h2><p>바쁜 시간 30칸과, 한 번에 방 하나만 잠그는 규칙은 바꾸지 않았습니다. Cuppu 표의 방 16개를 유지한 것입니다.</p></div>
+    <div class="card"><h2>0칸의 뜻</h2><p>단일 방 160건의 추가 0은, 방 0 잠금이 칸 1,562의 운반에 묻힌 결과입니다. 잠금이 항상 공짜라는 뜻은 아닙니다.</p></div>
+    <div class="card"><h2>간격 감도</h2><p>간격을 바꾸면 최악이 32칸에 머물지 않습니다. 781, 2343, 3125칸에서 최악이 커진 기록은 CSV 기본 행이 아닙니다. 자료 해설에만 있습니다.</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">끝</div>
+  <h1>다음에 코드를 열면 이 순서면 됩니다.</h1>
+  <ol class="steps">
+    <li><b>1</b><span>params.ts 에서 칸 상수를 봅니다.</span></li>
+    <li><b>2</b><span>bank.ts 의 tryActivate 로 이미 열린 행을 봅니다.</span></li>
+    <li><b>3</b><span>delay.ts 의 pushDelay 로 기다리는 법을 봅니다.</span></li>
+    <li><b>4</b><span>jedec.ts 의 하강과 rdram.ts 의 표찰을 비교합니다.</span></li>
+    <li><b>5</b><span>closedTicks 에 8권을 넣어 80, 44, 63을 확인합니다.</span></li>
+  </ol>
+  <button type="button" data-go="1">처음으로</button>
+</section>
+
+</main>
+<div class="bar" id="bar"></div>
+<div class="hint">← → 또는 스페이스</div>
+<div class="foot" id="foot"></div>
+<script>
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var index = 0;
+  function show(next) {
+    index = (next + slides.length) % slides.length;
+    slides.forEach(function (slide, i) { slide.classList.toggle("on", i === index); });
+    var hash = "#slide-" + (index + 1);
+    if (location.hash !== hash) history.replaceState(null, "", hash);
+    document.getElementById("bar").style.width = ((index + 1) / slides.length * 100) + "%";
+    document.getElementById("foot").textContent = (index + 1) + " / " + slides.length;
+  }
+  function fromHash() {
+    var match = /^#slide-(\d+)$/.exec(location.hash);
+    if (!match) return 0;
+    var n = Number(match[1]);
+    if (!Number.isInteger(n) || n < 1) return 0;
+    return Math.min(slides.length, n) - 1;
+  }
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "ArrowRight" || event.key === " " || event.key === "PageDown") {
+      event.preventDefault();
+      show(index + 1);
+    } else if (event.key === "ArrowLeft" || event.key === "PageUp" || event.key === "Backspace") {
+      event.preventDefault();
+      show(index - 1);
+    } else if (event.key === "Home") show(0);
+    else if (event.key === "End") show(slides.length - 1);
+  });
+  document.addEventListener("click", function (event) {
+    var go = event.target.closest && event.target.closest("[data-go]");
+    if (go) {
+      show(Number(go.getAttribute("data-go")) - 1);
+      return;
+    }
+    var play = event.target.closest && event.target.closest(".play");
+    if (!play) return;
+    var anim = play.closest(".slide").querySelector(".anim");
+    if (!anim) return;
+    anim.classList.remove("playing");
+    void anim.offsetWidth;
+    anim.classList.add("playing");
+  });
+  window.addEventListener("hashchange", function () { show(fromHash()); });
+  show(fromHash());
+})();
+</script>
+</body>
+</html>
