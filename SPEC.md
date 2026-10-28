@@ -155,3 +155,153 @@ M5. 시나리오 1~5 실행기 + CSV 출력
 - README.md: 실행법(npm run simulate), 시나리오별 기대 형태와 결과 해석,
   파라미터 출처(Cuppu-Jacob 2001 Table 1 / ISSI IS43R16800CC)
 - SPEC.md 저장본, 마일스톤별 커밋 5개, 최종 보고서(§0의 4)
+
+## 13. 리프레시
+
+과제: RDRAM vs SDR/DDR 시뮬레이터에 리프레시 추가 (기존 저장소 확장, TypeScript).
+
+이 프롬프트는 자기완결적이다. 기존 시뮬레이터(src/, test/) 위에 리프레시를 추가한다.
+사용자 개입 없이 M6→M8까지 순서대로 전부 실행한다. 중간에 질문하지 말 것.
+각 마일스톤 끝에서 테스트 실행 → 자기 리뷰(§8 금지 목록 대조) → 커밋 후 다음 단계.
+
+### 13.0 실행 프로토콜 (최우선)
+
+1. 시작 전에 이 명세 전문을 SPEC.md의 §13(리프레시)으로 추가하고 커밋한다.
+2. M6→M8 순서대로 진행. 각 단계 끝에서:
+   a) §7 해당 테스트 실행 → 전부 통과 확인
+   b) 작성한 코드를 §8 금지 목록과 대조한 자기 리뷰, 위반 시 수정 후 재테스트
+   c) 커밋 (메시지 예: "M6: refresh scheduler + unit tests")
+3. 완료 후 최종 보고서 출력: 아키텍처별 리프레시 패널티 표(§6의 판정 지표),
+   비대칭 관측 결과, 예상과 다르면 원인 분석 후 구현 버그로 수정.
+   성능 수치를 상수로 조정해 맞추는 것은 §8 위반이다.
+
+### 13.1 전제
+
+- 기존 코드(src/gates, src/core, src/wrappers, src/channel, src/metrics, test/)를
+  그대로 재사용한다. 구조를 재작성하지 말 것.
+- 기존 테스트(m1~m5)는 전부 통과 상태를 유지해야 한다.
+- 리프레시는 기본 OFF. 시나리오에서 명시적으로 켤 때만 작동한다.
+  기존 시나리오 CSV의 기존 행 수치는 한 줄도 바뀌면 안 된다.
+- 시간은 정수 틱(1틱=1.25ns) 기존 규칙 그대로. float ms/ns 금지.
+
+### 13.2 모델 정의
+
+- DRAM 셀은 누전되므로 모든 행을 주기적으로 재생성해야 한다.
+  리프레시는 요청과 무관하게 벽시계 틱 기준으로 스케줄된 "이벤트"다.
+- 사료 근거 (params.ts 주석에 박아둘 것):
+  * 일반 DRAM: 리프레시 주기 64ms, 4096회 분할 (ISSI IS43R16800CC 데이터시트).
+    이벤트 간격 = 64ms / 4096 = 12,500틱.
+    Cuppu-Jacob §5.1: ganged 일반 DRAM은 뱅크 전체가 동시 리프레시되며,
+    리프레시 대기가 전체 지연의 최대 50%까지 간 사례가 보고됨.
+  * Rambus: 리프레시 주기 33ms, 내부 뱅크를 개별·분산 리프레시
+    (Cuppu-Jacob 1999 §5.1 "Rambus refreshes internal banks individually").
+    1회 이벤트에 뱅크 1개만 잠기고, 최악 대기 = 행 1개 리프레시 분량.
+- 리프레시 1회 소요(행 재생 = 프리차지 + 행 접근):
+  * SDR: tRP 16 + Row 24 = 40틱 (50ns)
+  * DDR: tRP 16 + Row 16 = 32틱 (40ns)
+  * RDRAM: tRP 16 + Row 14 = 30틱 (37.5ns)
+- RDRAM의 이벤트 간격: 33ms / 4096 = 6,446틱 (반올림, 주석에 명시).
+  주의: Rambus 파트의 내부 리프레시 사이클 수(4096)는 원문 미확정 가정이다.
+  REFRESH_CYCLES_PER_PERIOD를 파라미터로 두고 TODO(Davis 논문/데이터시트에서
+  확정 필요) 주석을 남길 것. 일반 DRAM의 4096은 ISSI로 확정된 값이다.
+
+### 13.3 상태·스케줄링 변경
+
+src/core/refresh.ts 신규.
+
+RefreshScheduler = { enabled, intervalTicks, busyTicks, nextEventAt, remaining,
+lockedBank, lastBank, events, busyTicksTotal }.
+
+tickRefresh(scheduler, tick)는 순수 전이 함수 (기존 core 레이어 스타일).
+tick === nextEventAt인 틱에 이벤트 시작(remaining = busyTicks,
+nextEventAt += intervalTicks). 이벤트는 트래픽 유무와 무관하게 발생.
+
+commodity (SDR/DDR): 이벤트가 active면 device-wide block.
+새 ACT/READ/PRE 발급 불가. 이미 파이프라인에 들어간 데이터
+(컬럼 FIFO, 핀, prefetch)는 계속 drain. 실제 tRFC 동작과 동일.
+
+rdram: 이벤트가 active면 뱅크 1개만 lock(라운드로빈: 직전 뱅크와 다른
+뱅크, 마지막 활성 뱅크 이후 순환). 잠긴 뱅크에만 ACT/READ 불가,
+나머지 15개 뱅크와 채널은 정상 서비스. 채널은 잠기지 않는다.
+
+스케줄러는 존재하지 않는 리프레시 지연을 요청에 배분하지 않는다.
+요청이 받는 영향은 오직 "이벤트 구간과 충돌했는가"로 발생해야 한다.
+
+### 13.4 메트릭 확장
+
+RunRow에 추가: refresh (0/1), refreshEvents, refreshBusyTicks,
+latP50, latP99, latMax (요청 지연 = doneAt − enqueuedAt),
+refreshAddedLatencyAvg, refreshAddedLatencyMax.
+
+CSV 컬럼 확장. 기존 컬럼 순서 유지(기존 열 뒤에 append).
+
+added latency: refresh ON과 OFF에서 같은 시드·같은 워크로드로 두 번 돌려
+요청 id별로 지연을 짝지어 ON−OFF 차이의 평균/최대를 계산.
+
+### 13.5 시나리오
+
+src/metrics/scenarios.ts에 신규 추가. 기존 행 유지.
+
+1. sustain-baseline: 시드 고정 스트림(랜덤, burst 8, 동시성 8, 은행 16/16 매핑
+   기존 randomJobs 방식)을 시각 지평 2,000,000틱(또는 그 안에서 소진되는
+   요청 수)까지. 리프레시 OFF. 세 아키텍처 모두.
+2. sustain-refresh: 동일 시드·동일 워크로드, 리프레시 ON. 세 아키텍처 모두.
+3. single-bank-refresh: RDRAM 단독. 열려 있지 않은 한 뱅크에만 burst 8 요청을
+   연속 발행, 리프레시 ON. 잠긴 뱅크에 요청이 걸렸을 때의 최악 대기 관측.
+
+시나리오 옵션으로 refresh: 'off' | 'on'을 runArch/runJedec/runRdram에 전달.
+
+### 13.6 골든 테스트 + 통과 조건
+
+단위 테스트:
+
+- 이벤트 정확성: intervalTicks마다 정확히 발생, busyTicks 후 정확히 해제.
+  이벤트 카운트 = floor(지평/intervalTicks)와 일치.
+- commodity: 이벤트 active 동안 새 명령 발급이 막히는지,
+  이미 in-flight인 데이터는 drain되는지.
+- rdram: 잠긴 뱅크는 거부, 다른 뱅크는 즉시 서비스, 라운드로빈으로
+  연속 이벤트가 다른 뱅크를 잠그는지.
+- 결정론: 동일 시드 재실행 결과 동일.
+
+판정 조건 (시나리오):
+
+- refresh ON이면 세 아키텍처 모두 대비 baseline에서 대역폭 하락 또는
+  지연 증가가 0보다 커야 한다.
+- 핵심 비대칭: RDRAM의 패널티(대역폭 하락률, addedAvg/addedMax)가
+  SDR/DDR의 패널티보다 작아야 한다. 전 디바이스 정지 vs 뱅크 1개 정지의
+  구조적 결과로 창발해야 한다. 상수 비교가 아니라 같은 모델에서
+  요청 충돌 확률의 차이로 나와야 한다.
+  계산 참고: SDR duty 40/12,500 = 0.32%, DDR 32/12,500 = 0.26%,
+  RDRAM 30/6,446 = 0.47%. duty cycle은 RDRAM이 약간 높아도,
+  16분의 1 트래픽만 영향받는 것이 포인트.
+- single-bank 시나리오에서 RDRAM 최악 추가 대기 ≤ busyTicks(30틱).
+- 전체 우위가 뒤집히는 것은 요구하지 않는다. DDR이 여전히 빠를 수 있다.
+  관측 대상은 패널티의 상대 크기다.
+
+### 13.7 빌드 마일스톤
+
+M6. src/core/refresh.ts + 래퍼/러너 연결 + 단위 테스트 전부.
+    기존 m1~m5 회귀 없음 확인.
+M7. 메트릭 확장 + 시나리오 3종 + CSV. m1~m5 회귀 재확인.
+M8. 최종 실행 + 보고서. 각 단계 끝 커밋.
+
+### 13.8 금지 목록
+
+- 리프레시를 요청마다 균등 배분된 상수 지연으로 구현 (이벤트 충돌 모델이어야 함)
+- RDRAM이 이기도록 상수를 조정 (판정 기준은 패널티 비대칭이지 전체 승리가 아님)
+- float ms/ns 사용 (간격은 사전에 정수 틱으로 환산해 상수화)
+- 기존 시나리오 행 수치 변경 (리프레시 기본 OFF 위반)
+- 기존 테스트 삭제·약화
+- 리프레시 이벤트가 트래픽 유무에 따라 발생/미발생으로 바뀌는 구현
+  (벽시계 기준이어야 함. idle 구간의 이벤트는 busyTicks에 카운트하되
+  요청 영향은 0)
+- rdram에서 채널까지 잠그는 구현 (잠기는 것은 뱅크만)
+- 확정되지 않은 수치(RDRAM 사이클 수)를 확정값처럼 하드코딩 without TODO
+
+### 13.9 산출물
+
+- 위 변경사항 전부 + 통과하는 테스트 전부
+- README.md에 리프레시 섹션 추가: 모델 가정(64/33ms, ganged vs 개별),
+  관측된 패널티 수치, 해석
+- 최종 보고서: 아키텍처별 baseline/refresh 비교 표, 패널티 비대칭 판정,
+  single-bank 최악 대기 수치, 파라미터 출처와 TODO 목록
