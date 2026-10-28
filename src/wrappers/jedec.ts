@@ -142,6 +142,10 @@ export function makeDdr(opts?: {
   return makeDevice({ kind: 'ddr', ...opts })
 }
 
+export function primeRow(device: Device, bank: number, row: number): void {
+  device.core.banks[bank] = { state: 'active', openRow: row, timer: 0 }
+}
+
 export function enqueue(device: Device, job: MemJob): void {
   device.queue.push(job)
   device.tracks.set(job.id, blankTrack(job, device.tick))
