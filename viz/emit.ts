@@ -22,12 +22,3 @@ export async function sha256(text: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('')
 }
-
-export async function writeTrace(file: string, events: readonly TraceEvent[]): Promise<string> {
-  const { mkdirSync, writeFileSync } = await import('node:fs')
-  const { dirname } = await import('node:path')
-  const text = toJsonl(events)
-  mkdirSync(dirname(file), { recursive: true })
-  writeFileSync(file, text, 'utf8')
-  return sha256(text)
-}

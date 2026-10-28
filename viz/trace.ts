@@ -86,6 +86,27 @@ function commandEvent(tick: number, bank: number, decoded: CmdEvent['decoded']):
   return { kind: 'cmd', tick, bank, pins: { ...COMMAND_TABLE[decoded] }, decoded }
 }
 
+function seedOpen(
+  banks: readonly { state: string; openRow: number | null; timer: number }[],
+  halfBanks: readonly number[],
+): TraceEvent[] {
+  const events: TraceEvent[] = []
+  banks.forEach((bank, index) => {
+    if (bank.state === 'idle') return
+    events.push({
+      kind: 'bank',
+      tick: 0,
+      bank: index,
+      from: 'idle',
+      to: bank.state,
+      openRow: bank.openRow,
+      timer: bank.timer,
+    })
+  })
+  for (const bank of halfBanks) events.push({ kind: 'halfrow', tick: 0, bank, phase: 'occupy' })
+  return events
+}
+
 function diffBanks(tick: number, before: readonly BankSnap[], after: readonly BankSnap[]): TraceEvent[] {
   const events: TraceEvent[] = []
   for (let bank = 0; bank < after.length; bank += 1) {
@@ -181,6 +202,7 @@ function recordJedec(request: RecordRequest): TraceEvent[] {
       totalTicks: 0,
     },
   ]
+  events.push(...seedOpen(banksOf(device.core.banks), []))
   const fifoId = fifoIdFor(request.arch)
   let next = 0
   const live = new Set<number>()
@@ -296,10 +318,12 @@ function recordRdram(request: RecordRequest): TraceEvent[] {
       totalTicks: 0,
     },
   ]
+  events.push(...seedOpen(banksOf(device.core.banks), occupied(device.halfRow.slots, device.core.banks.length)))
   const waiting: RdramJob[] = jobs.slice(0, Math.min(concurrency, jobs.length))
   let next = waiting.length
   let guard = 0
   const announced = new Set<number>()
+  const wordsOut = new Map<number, number>()
   const limit = request.scenario === 'sustain' ? 2_000_000 : 200_000
   while (device.finished.length < jobs.length && guard < limit) {
     while (device.outstanding.byId.size < concurrency && waiting.length > 0) {
@@ -323,7 +347,7 @@ function recordRdram(request: RecordRequest): TraceEvent[] {
       waiting.push(jobs[next])
       next += 1
     }
-    events.push(...stepRdramObserved(device))
+    events.push(...stepRdramObserved(device, wordsOut))
     guard += 1
   }
   if (device.finished.length < jobs.length) throw new Error('rdram trace did not finish')
@@ -352,7 +376,7 @@ function recordRdram(request: RecordRequest): TraceEvent[] {
   return events
 }
 
-function stepRdramObserved(device: Rdram): TraceEvent[] {
+function stepRdramObserved(device: Rdram, wordsOut: Map<number, number>): TraceEvent[] {
   const beforeBanks = banksOf(device.core.banks)
   const beforeColumn = device.column.slots.slice()
   const beforeIds = new Set(device.outstanding.byId.keys())
@@ -383,6 +407,16 @@ function stepRdramObserved(device: Rdram): TraceEvent[] {
   } else if (beforeChannel.mode !== 'idle' && device.channel.mode === 'idle') {
     const seg = beforeChannel.mode === 'header' ? beforeChannel.which : 'DATA'
     events.push({ kind: 'chan', tick, txnId: beforeChannel.id, seg, phase: 'end' })
+    if (beforeChannel.mode === 'data') {
+      const txn =
+        device.outstanding.byId.get(beforeChannel.id) ?? device.finished.find((item) => item.id === beforeChannel.id)
+      const sent = wordsOut.get(beforeChannel.id) ?? 0
+      const add = Math.min(2, (txn?.burst ?? 0) - sent)
+      for (let word = 0; word < add; word += 1) {
+        events.push({ kind: 'pin', tick, wordIndex: sent + word, reqId: beforeChannel.id })
+      }
+      wordsOut.set(beforeChannel.id, sent + add)
+    }
   }
   if (device.finished.length > beforeFinished) {
     for (const txn of device.finished.slice(beforeFinished)) {

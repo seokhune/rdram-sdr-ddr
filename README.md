@@ -49,3 +49,26 @@ The saturated stream does not lose bandwidth. The scheduler issues the next colu
 
 A serial stream of 400 requests at concurrency 1, same seed, is not a CSV row. It puts the command closer to the critical path. The makespan grows by 48 ticks on SDR over 4 events, 8 ticks on DDR over 2 events, and 36 ticks on RDRAM over 5 events. The worst request grows by 32, 8, and 30 ticks. RDRAM's worst wait is one bank refresh. It is smaller than SDR's makespan growth and larger than DDR's, because DDR's 32-tick refresh still fits in most of the remaining slack.
 
+## Run the viewer
+
+The viewer replays a trace. It does not run a second DRAM model.
+
+```
+npm run trace -- --scenario burst --seed 42 --arch all
+npm run viewer
+```
+
+`npm run trace` writes `traces/<scenario>-<arch>-s<seed>.jsonl` and prints the SHA-256 of that file. The page opens on an open-row burst of 8. **Record** builds the trace for the scenario, seed, burst, concurrency, and architecture in the bar. **Replay check** records it again and compares the hash. **A/B** needs a second **Record** so both architectures share one tick. Use the JSONL input for a trace that is already on disk.
+
+Space plays and pauses. The left and right arrows step one tick. Shift plus an arrow steps 8 ticks. Home and End jump to the ends. Plus and minus zoom. R lists the raw events at the playhead.
+
+What the panels show:
+
+- The timeline draws commands, bank state, pin words, and, for RDRAM, half-row slots and channel segments. A commodity refresh shades the full window. An RDRAM refresh shades only the locked bank.
+- The column pipe is the delay FIFO. The sentence under it quotes the token's push tick, pop tick, and shift count from the trace. That shift count is the pipe depth.
+- The waveform draws CS, RAS, CAS, WE, and DQ. On the golden CL=2 run, READ is at tick 12 and the first word is at tick 24.
+- The request list shows `rowSpan`, `colSpan`, `transferSpan`, and `overlap` from the request summary. An open burst of 8 reads 80 ticks on SDR, 44 on DDR, and 63 on RDRAM.
+- The side column counts completions, in-flight requests, outstanding transactions, pin words, and latency up to the playhead. The burst chart reads `metrics/out/scenarios.csv`. The dots are the closed forms `24+(b-1)*8`, `16+(b-1)*4`, and `32+ceil(8b/16)*8-1`.
+- The event table lists events near the playhead. Click a row to move the playhead. A/B lines up the same request id on both sides.
+
+

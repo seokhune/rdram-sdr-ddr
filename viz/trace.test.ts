@@ -93,4 +93,21 @@ describe('trace replay', () => {
     expect(parseJsonl(toJsonl(events))[0]?.kind).toBe('sim')
     expect(() => parseJsonl('{"kind":"edge","tick":0,"edge":"rise"}\n')).toThrow(/sim header/)
   })
+
+  it('sits the closed burst form on the scenario CSV', async () => {
+    const { readFileSync } = await import('node:fs')
+    const lines = readFileSync('metrics/out/scenarios.csv', 'utf8').trim().split('\n')
+    const header = lines[0]?.split(',') ?? []
+    const ticksAt = header.indexOf('ticks')
+    const form = (arch: string, burst: number) => {
+      if (arch === 'sdr') return 24 + (burst - 1) * 8
+      if (arch === 'ddr') return 16 + (burst - 1) * 4
+      return 32 + Math.ceil((8 * burst) / 16) * 8 - 1
+    }
+    for (const line of lines.slice(1)) {
+      const cell = line.split(',')
+      if (cell[0] !== 'burst') continue
+      expect(Number(cell[ticksAt])).toBe(form(cell[1] ?? '', Number(cell[2])))
+    }
+  })
 })
