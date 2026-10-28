@@ -27,4 +27,25 @@ What the runs are for:
 - `parts` compares a DDR burst of 4 words with a burst of 64 on an open row. Bandwidth should rise. Time to first data, and the column component, should stay the same.
 - `fixed` is one closed-page read. Time to first data should be longer on RDRAM than on DDR.
 
-Refresh is not simulated. Commodity DRAM would refresh every bank together every 64 ms. Rambus would refresh one bank at a time on a 33 ms period. The constants are named in `src/core/params.ts` and left unused.
+Refresh runs only when a scenario turns it on. The default is off, so the original scenario rows keep their numbers. A refresh is a wall-clock event, not a delay added to every request.
+
+Commodity DRAM, from the ISSI IS43R16800CC datasheet, keeps a row for 64 ms and splits that window into 4096 refresh commands. The gap is 12,500 ticks. Cuppu and Jacob, section 5.1, describe that refresh as ganged. Every bank stops new activates, reads, and precharges together. Data already in the column pipe, the pin queue, or the DDR prefetch register keeps draining. The busy time is tRP plus the row access. That is 40 ticks on SDR and 32 ticks on DDR.
+
+Direct RDRAM, from the same section, uses a 33 ms period and refreshes one internal bank at a time. The channel stays up, and the other 15 banks keep taking commands. The locked bank rotates. The busy time is 30 ticks. The 33 ms gap divided by 4,096 is 6,445.3125 ticks, and the model uses the rounded 6,446. The 4,096 count for the Rambus part is not in the paper. It is an assumption, marked TODO in `src/core/params.ts`, pending a Davis thesis or a Rambus datasheet. The commodity 4,096 is the ISSI figure.
+
+`sustain-baseline` and `sustain-refresh` run the same 2,048-request random stream, burst 8, concurrency 8, seed 7. The stream finishes inside the 2,000,000-tick horizon.
+
+| Stream | SDR | DDR | RDRAM |
+| --- | --- | --- | --- |
+| Ticks, refresh off | 131112 | 65564 | 109645 |
+| Ticks, refresh on | 131112 | 65564 | 109645 |
+| Bandwidth, MB/s, off and on | 799 | 1599 | 956 |
+| Refresh events | 10 | 5 | 17 |
+| Added latency, max ticks | 0 | 32 | 0 |
+
+The saturated stream does not lose bandwidth. The scheduler issues the next column command while an earlier burst still occupies the pin, and that slack is longer than one refresh. An SDR read that lands inside a refresh starts 40 ticks later and still reaches the pin before the bus is ready for it, so its completion time does not move. DDR does reorder two pairs of requests by 32 ticks. Each pair cancels, so the makespan stays put and the average added latency rounds to 0. Across 17 RDRAM events the locked bank was never the next channel command, so no RDRAM timestamp moved. The duty-cycle estimates, 0.32% for SDR, 0.26% for DDR, and 0.47% for RDRAM, would be the loss if the data bus itself stopped. The bus does not stop while a burst is already in flight, and a burst of 8 is at least as long as the refresh.
+
+`single-bank-refresh` sends 160 burst-8 requests to one closed RDRAM bank. The worst request takes 28 ticks more than the same stream with refresh off. That is inside the 30-tick bank refresh. There is no other bank to cover the gap, so the stall shows up.
+
+A serial stream of 400 requests at concurrency 1, same seed, is not a CSV row. It puts the command closer to the critical path. The makespan grows by 48 ticks on SDR over 4 events, 8 ticks on DDR over 2 events, and 36 ticks on RDRAM over 5 events. The worst request grows by 32, 8, and 30 ticks. RDRAM's worst wait is one bank refresh. It is smaller than SDR's makespan growth and larger than DDR's, because DDR's 32-tick refresh still fits in most of the remaining slack.
+
