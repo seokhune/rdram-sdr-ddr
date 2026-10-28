@@ -3,7 +3,18 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --experimental-strip-types --test \"test/**/*.test.ts\"",
-    "simulate": "node --experimental-strip-types src/main.ts"
+    "test": "node --experimental-strip-types --test \"test/**/*.test.ts\" && vitest run",
+    "simulate": "node --experimental-strip-types src/main.ts",
+    "trace": "node --experimental-strip-types viz/cli.ts",
+    "viewer": "vite --config viewer/vite.config.ts"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
   }
 }
