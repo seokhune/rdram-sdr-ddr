@@ -47,6 +47,7 @@ export type LatencySample = {
 type RunOpts = {
   open?: { bank: number; row: number }
   refresh?: 'off' | 'on'
+  refreshInterval?: number
   horizon?: number
   headerOctcycles?: number
 }
@@ -202,6 +203,7 @@ export function runRdram(
   const rdram = makeRdram({
     headerOctcycles: opts?.headerOctcycles ?? 1,
     refresh: opts?.refresh === 'on',
+    refreshInterval: opts?.refreshInterval,
   })
   if (opts?.open) openRow(rdram, opts.open.bank, opts.open.row)
   const waiting = jobs.slice(0, Math.min(concurrency, jobs.length))
