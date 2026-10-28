@@ -1,0 +1,29 @@
+---
+description: SPEC §11 patterns that must not appear in the simulator
+alwaysApply: true
+---
+
+# Forbidden patterns
+
+Reject these in review. Fix the model. Do not patch the result.
+
+- Delay implemented as `t + k` or `readyAt`.
+- Prefetch that predicts the next address, or an array that grows on every call. Depth stays 2.
+- A second or third copy of the DRAM core.
+- One global clock that steps SDR every tick.
+- Float nanoseconds in the timebase.
+- Hidden state inside a gate function.
+- ACT on every request. A row hit skips ACT.
+- One global queue that serializes every bank. Banks are an array of independent FSMs.
+- RDRAM as a wide fast bus. ROW and COL headers must consume channel ticks.
+- A full-duplex channel. One direction occupies the channel.
+- Half-row slots that are occupied and never released on precharge or row change.
+- Returning a hard-coded bandwidth or latency constant instead of running the tick loop.
+
+```typescript
+// BAD
+if (arch === 'rdram') return { bandwidth: 1600, latency: 40 }
+
+// GOOD
+return runDevice(arch, requests)
+```

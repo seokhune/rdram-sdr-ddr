@@ -1,0 +1,9 @@
+{
+  "name": "rdram-sdr-ddr",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types --test \"test/**/*.test.ts\"",
+    "simulate": "node --experimental-strip-types src/main.ts"
+  }
+}

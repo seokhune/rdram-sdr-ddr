@@ -1,0 +1,39 @@
+---
+description: SPEC §1 absolute rules for the tick-level memory simulator
+alwaysApply: true
+---
+
+# Absolute rules
+
+Time is an integer tick. One tick is 1.25 ns. Do not store or add a floating-point nanosecond value.
+
+`delay(k)` is a FIFO of length k. `push` returns the value inserted k ticks earlier. Do not schedule with `readyAt = t + k`.
+
+```typescript
+// BAD: overlap cannot emerge
+const readyAt = tick + colAccess
+
+// GOOD: shift a k-deep register every device tick
+const { fifo, out } = pushDelay(column, token)
+```
+
+Gates, decoders, and muxes are pure. No closed-over state. Thread bank FSMs and queues as fields.
+
+One DRAM core, three interface wrappers. Do not copy the bank state machine per architecture.
+
+Each device steps only when its own divider edge fires. SDR steps the core every 8 ticks, not every tick.
+
+Workload randomness takes a seed. Do not call `Math.random`.
+
+A timer decrements on each device tick. The state changes on the tick the timer becomes 0.
+
+```typescript
+// BAD: transitions one tick late
+if (bank.timer === 0) bank.state = 'active'
+else bank.timer -= 1
+
+// GOOD
+const timer = bank.timer - 1
+if (timer === 0) return complete(bank)
+return { ...bank, timer }
+```
