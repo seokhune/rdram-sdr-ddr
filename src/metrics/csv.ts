@@ -19,6 +19,14 @@ const COLUMNS = [
   'avgOverlap',
   'maxOverlap',
   'efficiency',
+  'refresh',
+  'refreshEvents',
+  'refreshBusyTicks',
+  'latP50',
+  'latP99',
+  'latMax',
+  'refreshAddedLatencyAvg',
+  'refreshAddedLatencyMax',
 ] as const
 
 export function toCsv(rows: readonly RunRow[]): string {

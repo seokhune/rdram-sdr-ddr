@@ -1,5 +1,5 @@
 import { writeCsv } from './csv.ts'
-import { runArch, type ArchName, type Job, type RunRow } from './run.ts'
+import { pairAddedLatency, runArch, runArchDetailed, type ArchName, type Job, type RunRow } from './run.ts'
 import { generate, makeRng } from './workload.ts'
 
 const ARCHS: ArchName[] = ['sdr', 'ddr', 'rdram']
@@ -69,6 +69,25 @@ export function collectScenarios(): RunRow[] {
   for (const arch of ARCHS) {
     rows.push(runArch('fixed', arch, [one(1, 0, 5, 1)], 1, 0))
   }
+  const horizon = 2_000_000
+  for (const arch of ARCHS) {
+    const jobs = randomJobs(arch, 2048, 8, 7)
+    const off = runArchDetailed('sustain-baseline', arch, jobs, 8, 0, { refresh: 'off', horizon })
+    const on = runArchDetailed('sustain-refresh', arch, jobs, 8, 0, { refresh: 'on', horizon })
+    pairAddedLatency(off, on)
+    rows.push(off.row, on.row)
+  }
+  const single = Array.from({ length: 160 }, (_, id) => one(id, 0, id % 64, 8))
+  const singleOff = runArchDetailed('single-bank-refresh', 'rdram', single, 1, 0, {
+    refresh: 'off',
+    horizon,
+  })
+  const singleOn = runArchDetailed('single-bank-refresh', 'rdram', single, 1, 0, {
+    refresh: 'on',
+    horizon,
+  })
+  pairAddedLatency(singleOff, singleOn)
+  rows.push(singleOn.row)
   return rows
 }
 

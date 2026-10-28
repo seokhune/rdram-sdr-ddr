@@ -29,6 +29,26 @@ export type RunRow = {
   avgOverlap: number
   maxOverlap: number
   efficiency: number
+  refresh: number
+  refreshEvents: number
+  refreshBusyTicks: number
+  latP50: number
+  latP99: number
+  latMax: number
+  refreshAddedLatencyAvg: number
+  refreshAddedLatencyMax: number
+}
+
+export type LatencySample = {
+  id: number
+  latency: number
+}
+
+type RunOpts = {
+  open?: { bank: number; row: number }
+  refresh?: 'off' | 'on'
+  horizon?: number
+  headerOctcycles?: number
 }
 
 const PEAK_BYTES_PER_TICK: Record<ArchName, number> = {
@@ -59,6 +79,45 @@ function span(start: number | null, end: number | null): number {
   return end - start
 }
 
+function percentile(sorted: number[], percent: number): number {
+  if (sorted.length === 0) return 0
+  const rank = Math.ceil((percent / 100) * sorted.length) - 1
+  return sorted[Math.min(sorted.length - 1, Math.max(0, rank))]
+}
+
+function latencyOf(doneAt: number | null, enqueuedAt: number, ticks: number): number {
+  return (doneAt ?? ticks) - enqueuedAt
+}
+
+function refreshColumns(
+  latencies: number[],
+  refreshOn: boolean,
+  events: number,
+  busyTicks: number,
+): Pick<
+  RunRow,
+  | 'refresh'
+  | 'refreshEvents'
+  | 'refreshBusyTicks'
+  | 'latP50'
+  | 'latP99'
+  | 'latMax'
+  | 'refreshAddedLatencyAvg'
+  | 'refreshAddedLatencyMax'
+> {
+  const sorted = [...latencies].sort((left, right) => left - right)
+  return {
+    refresh: refreshOn ? 1 : 0,
+    refreshEvents: events,
+    refreshBusyTicks: busyTicks,
+    latP50: percentile(sorted, 50),
+    latP99: percentile(sorted, 99),
+    latMax: sorted.length === 0 ? 0 : sorted[sorted.length - 1],
+    refreshAddedLatencyAvg: 0,
+    refreshAddedLatencyMax: 0,
+  }
+}
+
 function fromTracks(
   scenario: string,
   arch: ArchName,
@@ -67,8 +126,12 @@ function fromTracks(
   concurrency: number,
   ticks: number,
   tracks: Track[],
+  refreshOn: boolean,
+  refreshEvents: number,
+  refreshBusyTicks: number,
 ): RunRow {
   const bytes = tracks.reduce((sum, track) => sum + track.words * 8, 0)
+  const latencies = tracks.map((track) => latencyOf(track.doneAt, track.enqueuedAt, ticks))
   return {
     scenario,
     arch,
@@ -86,6 +149,7 @@ function fromTracks(
     avgOverlap: mean(tracks.map((track) => track.overlap)),
     maxOverlap: tracks.reduce((max, track) => Math.max(max, track.overlap), 0),
     efficiency: efficiency(arch, bytes, ticks),
+    ...refreshColumns(latencies, refreshOn, refreshEvents, refreshBusyTicks),
   }
 }
 
@@ -99,14 +163,15 @@ export function runJedec(
   arch: 'sdr' | 'ddr',
   jobs: readonly Job[],
   concurrency: number,
-  opts?: { open?: { bank: number; row: number }; refresh?: 'off' | 'on' },
-): { ticks: number; tracks: Track[] } {
+  opts?: RunOpts,
+): { ticks: number; tracks: Track[]; refreshEvents: number; refreshBusyTicks: number } {
   const device = arch === 'sdr' ? makeSdr({ refresh: opts?.refresh === 'on' }) : makeDdr({ refresh: opts?.refresh === 'on' })
   if (opts?.open) primeRow(device, opts.open.bank, opts.open.row)
   let next = 0
   const live = new Set<number>()
   let guard = 0
-  while ((next < jobs.length || live.size > 0) && guard < 500_000) {
+  const limit = opts?.horizon ?? 500_000
+  while ((next < jobs.length || live.size > 0) && guard < limit) {
     while (live.size < concurrency && next < jobs.length) {
       enqueue(device, jobs[next])
       live.add(jobs[next].id)
@@ -121,14 +186,19 @@ export function runJedec(
   }
   if (next < jobs.length || live.size > 0) throw new Error(`${arch} scenario did not finish`)
   const tracks = jobs.map((job) => device.tracks.get(job.id)).filter((track): track is Track => !!track)
-  return { ticks: finishTick(tracks), tracks }
+  return {
+    ticks: finishTick(tracks),
+    tracks,
+    refreshEvents: device.refresh.events,
+    refreshBusyTicks: device.refresh.busyTicksTotal,
+  }
 }
 
 export function runRdram(
   jobs: readonly Job[],
   concurrency: number,
-  opts?: { open?: { bank: number; row: number }; headerOctcycles?: number; refresh?: 'off' | 'on' },
-): { ticks: number; txns: RdramTxn[] } {
+  opts?: RunOpts,
+): { ticks: number; txns: RdramTxn[]; refreshEvents: number; refreshBusyTicks: number } {
   const rdram = makeRdram({
     headerOctcycles: opts?.headerOctcycles ?? 1,
     refresh: opts?.refresh === 'on',
@@ -137,7 +207,8 @@ export function runRdram(
   const waiting = jobs.slice(0, Math.min(concurrency, jobs.length))
   let next = waiting.length
   let guard = 0
-  while (rdram.finished.length < jobs.length && guard < 500_000) {
+  const limit = opts?.horizon ?? 500_000
+  while (rdram.finished.length < jobs.length && guard < limit) {
     while (rdram.outstanding.byId.size < concurrency && waiting.length > 0) {
       if (!pullRequest(rdram, waiting)) break
     }
@@ -156,7 +227,98 @@ export function runRdram(
       `rdram scenario did not finish (${rdram.finished.length}/${jobs.length}; ${stuck}; channel ${rdram.channel.mode})`,
     )
   }
-  return { ticks: finishTick(rdram.finished), txns: rdram.finished }
+  return {
+    ticks: finishTick(rdram.finished),
+    txns: rdram.finished,
+    refreshEvents: rdram.refresh.events,
+    refreshBusyTicks: rdram.refresh.busyTicksTotal,
+  }
+}
+
+export type ArchRun = {
+  row: RunRow
+  samples: LatencySample[]
+}
+
+export function runArchDetailed(
+  scenario: string,
+  arch: ArchName,
+  jobs: readonly Job[],
+  concurrency: number,
+  locality: number,
+  opts?: RunOpts,
+): ArchRun {
+  const burst = jobs[0]?.burst ?? 0
+  const refreshOn = opts?.refresh === 'on'
+  if (arch === 'rdram') {
+    const result = runRdram(jobs, concurrency, opts)
+    const bytes = payloadBytes(result.txns)
+    const latencies = result.txns.map((txn) => latencyOf(txn.doneAt, txn.enqueuedAt, result.ticks))
+    return {
+      row: {
+        scenario,
+        arch,
+        burst,
+        locality,
+        concurrency,
+        ticks: result.ticks,
+        bytes,
+        bandwidthMBps: bandwidth(bytes, result.ticks),
+        avgLatency: mean(result.txns.map((txn) => txn.doneAt ?? result.ticks)),
+        avgFirst: mean(result.txns.map((txn) => txn.firstWord ?? result.ticks)),
+        avgRow: mean(result.txns.map((txn) => span(txn.rowStart, txn.rowEnd))),
+        avgColumn: mean(result.txns.map((txn) => span(txn.colStart, txn.colEnd))),
+        avgTransfer: mean(result.txns.map((txn) => txn.transfer)),
+        avgOverlap: mean(result.txns.map((txn) => txn.overlap)),
+        maxOverlap: result.txns.reduce((max, txn) => Math.max(max, txn.overlap), 0),
+        efficiency: efficiency(arch, bytes, result.ticks),
+        ...refreshColumns(latencies, refreshOn, result.refreshEvents, result.refreshBusyTicks),
+      },
+      samples: result.txns.map((txn) => ({
+        id: txn.id,
+        latency: latencyOf(txn.doneAt, txn.enqueuedAt, result.ticks),
+      })),
+    }
+  }
+  const adapted = jobs.map((job) => ({ ...job, bank: job.bank % 4 }))
+  const result = runJedec(arch, adapted, concurrency, {
+    open: opts?.open ? { bank: opts.open.bank % 4, row: opts.open.row } : undefined,
+    refresh: opts?.refresh,
+    horizon: opts?.horizon,
+  })
+  return {
+    row: fromTracks(
+      scenario,
+      arch,
+      burst,
+      locality,
+      concurrency,
+      result.ticks,
+      result.tracks,
+      refreshOn,
+      result.refreshEvents,
+      result.refreshBusyTicks,
+    ),
+    samples: result.tracks.map((track) => ({
+      id: track.id,
+      latency: latencyOf(track.doneAt, track.enqueuedAt, result.ticks),
+    })),
+  }
+}
+
+export function pairAddedLatency(off: ArchRun, on: ArchRun): void {
+  const baseline = new Map(off.samples.map((sample) => [sample.id, sample.latency]))
+  const deltas: number[] = []
+  for (const sample of on.samples) {
+    const prior = baseline.get(sample.id)
+    if (prior === undefined) continue
+    deltas.push(sample.latency - prior)
+  }
+  const avg = mean(deltas)
+  let max = deltas.length === 0 ? 0 : deltas[0]
+  for (const delta of deltas) max = Math.max(max, delta)
+  on.row.refreshAddedLatencyAvg = avg
+  on.row.refreshAddedLatencyMax = max
 }
 
 export function runArch(
@@ -165,35 +327,7 @@ export function runArch(
   jobs: readonly Job[],
   concurrency: number,
   locality: number,
-  opts?: { open?: { bank: number; row: number }; refresh?: 'off' | 'on' },
+  opts?: RunOpts,
 ): RunRow {
-  const burst = jobs[0]?.burst ?? 0
-  if (arch === 'rdram') {
-    const result = runRdram(jobs, concurrency, opts)
-    const bytes = payloadBytes(result.txns)
-    return {
-      scenario,
-      arch,
-      burst,
-      locality,
-      concurrency,
-      ticks: result.ticks,
-      bytes,
-      bandwidthMBps: bandwidth(bytes, result.ticks),
-      avgLatency: mean(result.txns.map((txn) => txn.doneAt ?? result.ticks)),
-      avgFirst: mean(result.txns.map((txn) => txn.firstWord ?? result.ticks)),
-      avgRow: mean(result.txns.map((txn) => span(txn.rowStart, txn.rowEnd))),
-      avgColumn: mean(result.txns.map((txn) => span(txn.colStart, txn.colEnd))),
-      avgTransfer: mean(result.txns.map((txn) => txn.transfer)),
-      avgOverlap: mean(result.txns.map((txn) => txn.overlap)),
-      maxOverlap: result.txns.reduce((max, txn) => Math.max(max, txn.overlap), 0),
-      efficiency: efficiency(arch, bytes, result.ticks),
-    }
-  }
-  const adapted = jobs.map((job) => ({ ...job, bank: job.bank % 4 }))
-  const result = runJedec(arch, adapted, concurrency, {
-    open: opts?.open ? { bank: opts.open.bank % 4, row: opts.open.row } : undefined,
-    refresh: opts?.refresh,
-  })
-  return fromTracks(scenario, arch, burst, locality, concurrency, result.ticks, result.tracks)
+  return runArchDetailed(scenario, arch, jobs, concurrency, locality, opts).row
 }
