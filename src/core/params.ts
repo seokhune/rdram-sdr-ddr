@@ -61,14 +61,35 @@ export const CUPPU_RDRAM: CoreParams = {
 
 export const HALF_ROW_SLOTS = 17
 
-// TODO: refresh is not stepped in this version. The period is not one shared
-// number. Commodity DRAM refreshes every bank together on a 64 ms period.
-// Rambus uses 33 ms, refreshes one internal bank at a time, and spreads the
-// banks across N slices, so the worst wait is one row refresh.
+// Commodity DRAM (ISSI IS43R16800CC) retains a row for 64 ms and splits that
+// window into 4096 refresh commands. 64 ms / 4096 = 15.625 us = 12,500 ticks.
+// Cuppu-Jacob §5.1: a ganged commodity refresh stalls every bank at once, and
+// that stall has been reported at up to half of observed latency.
+// Rambus (Cuppu-Jacob 1999 §5.1) uses a 33 ms period and refreshes internal
+// banks one at a time, so the worst wait is one row refresh.
 export const REFRESH_PERIOD_MS = {
   commodityDram: 64,
   rambus: 33,
 } as const
+
+export const REFRESH_CYCLES_PER_PERIOD = {
+  commodityDram: 4096,
+  // TODO(Davis thesis or a Rambus datasheet): the Rambus internal cycle count
+  // is not stated in Cuppu-Jacob. 4096 is an assumption, not a confirmed value.
+  rambus: 4096,
+} as const
+
+export const COMMODITY_REFRESH_INTERVAL_TICKS = 12_500
+
+// 33 ms is 26,400,000 ticks. 26,400,000 / 4096 = 6,445.3125. The refresh
+// specification fixes the rounded interval at 6,446 ticks.
+export const RAMBUS_REFRESH_INTERVAL_TICKS = 6_446
+
+export function refreshBusyTicks(arch: 'sdr' | 'ddr' | 'rdram'): number {
+  if (arch === 'sdr') return CUPPU_T_RP.sdr + CUPPU_ROW_ACCESS.sdr
+  if (arch === 'ddr') return CUPPU_T_RP.ddr + CUPPU_ROW_ACCESS.ddr
+  return CUPPU_T_RP.rdram + CUPPU_ROW_ACCESS.rdram
+}
 
 export function deviceSteps(globalTicks: number, clock: number): number {
   if (globalTicks % clock !== 0) {

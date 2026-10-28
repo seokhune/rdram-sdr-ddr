@@ -5,8 +5,11 @@ import {
   CUPPU_RDRAM,
   HALF_ROW_SLOTS,
   OCTCYCLE_TICKS,
+  RAMBUS_REFRESH_INTERVAL_TICKS,
   deviceSteps,
+  refreshBusyTicks,
 } from '../core/params.ts'
+import { makeRefresh, refreshBlocksBank, tickRefresh, type RefreshScheduler } from '../core/refresh.ts'
 import { canActivate, makeHalfRow, occupy, release, slotPair, type HalfRow } from '../core/halfRow.ts'
 import { makeDelay, pushDelay, type DelayFifo } from '../gates/delay.ts'
 import { makeDivider, stepDivider, type Divider } from '../gates/divider.ts'
@@ -87,6 +90,7 @@ export type Rdram = {
   headerBusy: number
   dataBusy: number
   onDone: Map<number, (txn: RdramTxn) => void>
+  refresh: RefreshScheduler
 }
 
 export function makeRdram(opts?: {
@@ -95,6 +99,9 @@ export function makeRdram(opts?: {
   tRpSteps?: number
   casClocks?: number
   onDone?: (txn: RdramTxn) => void
+  refresh?: boolean
+  refreshInterval?: number
+  refreshBusy?: number
 }): Rdram {
   const headerOctcycles = opts?.headerOctcycles ?? 1
   if (!Number.isInteger(headerOctcycles) || headerOctcycles < 1) {
@@ -122,6 +129,13 @@ export function makeRdram(opts?: {
     headerBusy: 0,
     dataBusy: 0,
     onDone: new Map(),
+    refresh: makeRefresh({
+      enabled: opts?.refresh ?? false,
+      intervalTicks: opts?.refreshInterval ?? RAMBUS_REFRESH_INTERVAL_TICKS,
+      busyTicks: opts?.refreshBusy ?? refreshBusyTicks('rdram'),
+      mode: 'bank',
+      bankCount: CUPPU_RDRAM.banks,
+    }),
   }
 }
 
@@ -235,6 +249,10 @@ function startHeader(rdram: Rdram, txn: RdramTxn, which: 'ROW' | 'COL'): void {
   txn.stage = which === 'ROW' ? 'rowHeader' : 'colHeader'
 }
 
+function bankLocked(rdram: Rdram, bank: number): boolean {
+  return refreshBlocksBank(rdram.refresh, bank)
+}
+
 function tryAssign(rdram: Rdram): boolean {
   for (const txn of txns(rdram)) {
     if (txn.stage === 'ready' && txn.chunksLeft > 0) {
@@ -247,12 +265,14 @@ function tryAssign(rdram: Rdram): boolean {
   }
   for (const txn of txns(rdram)) {
     if (txn.stage === 'needCol' && isRowHit(rdram.core.banks[txn.bank], txn.row)) {
+      if (bankLocked(rdram, txn.bank)) continue
       startHeader(rdram, txn, 'COL')
       return true
     }
   }
   for (const txn of txns(rdram)) {
     if (txn.stage !== 'needRow') continue
+    if (bankLocked(rdram, txn.bank)) continue
     if (rdram.core.banks[txn.bank].state !== 'idle') continue
     if (!canActivate(rdram.halfRow, txn.bank)) continue
     startHeader(rdram, txn, 'ROW')
@@ -286,6 +306,7 @@ function unblockNeighbor(rdram: Rdram): void {
       const bank = rdram.core.banks[other]
       if (bank.state !== 'active') continue
       if (txns(rdram).some((held) => held.bank === other)) continue
+      if (bankLocked(rdram, other)) continue
       if (prechargeBank(rdram, other)) return
     }
   }
@@ -309,6 +330,7 @@ function onCore(rdram: Rdram): void {
   }
   for (const txn of txns(rdram)) {
     if (txn.stage !== 'actPending') continue
+    if (bankLocked(rdram, txn.bank)) continue
     if (rdram.core.banks[txn.bank].state !== 'idle') continue
     if (!canActivate(rdram.halfRow, txn.bank)) continue
     const held = occupy(rdram.halfRow, txn.bank)
@@ -324,6 +346,7 @@ function onCore(rdram: Rdram): void {
   }
   for (const txn of txns(rdram)) {
     if (txn.stage !== 'needPre') continue
+    if (bankLocked(rdram, txn.bank)) continue
     const bank = rdram.core.banks[txn.bank]
     if (bank.state !== 'active' || bank.openRow === txn.row) continue
     const busy = txns(rdram).some(
@@ -336,6 +359,7 @@ function onCore(rdram: Rdram): void {
   let token: Token | undefined
   for (const txn of txns(rdram)) {
     if (txn.stage !== 'colPending') continue
+    if (bankLocked(rdram, txn.bank)) continue
     if (!isRowHit(rdram.core.banks[txn.bank], txn.row)) continue
     token = { id: txn.id }
     txn.stage = 'inColumn'
@@ -375,6 +399,7 @@ export function stepRdram(rdram: Rdram): Rdram {
   }
   noteOverlap(rdram)
   rdram.tick += 1
+  rdram.refresh = tickRefresh(rdram.refresh, rdram.tick)
   return rdram
 }
 

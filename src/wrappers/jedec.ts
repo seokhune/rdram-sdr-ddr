@@ -1,7 +1,14 @@
 import { pickOpenPage } from '../channel/schedule.ts'
 import { isRowHit, tryActivate, tryPrecharge } from '../core/bank.ts'
 import { makeCore, replaceBank, stepCore, type DramCore } from '../core/dram.ts'
-import { CUPPU_DDR, CUPPU_SDR, deviceSteps } from '../core/params.ts'
+import {
+  COMMODITY_REFRESH_INTERVAL_TICKS,
+  CUPPU_DDR,
+  CUPPU_SDR,
+  deviceSteps,
+  refreshBusyTicks,
+} from '../core/params.ts'
+import { makeRefresh, refreshBlocksAll, tickRefresh, type RefreshScheduler } from '../core/refresh.ts'
 import { makeDelay, pushDelay, type DelayFifo } from '../gates/delay.ts'
 import { makeDivider, stepDivider, type Divider } from '../gates/divider.ts'
 import { emptyPrefetch, loadPair, shiftOut, type Prefetch2 } from './prefetch.ts'
@@ -60,6 +67,7 @@ export type Device = {
   beats: Array<{ tick: number; id: number }>
   trace: boolean
   manual: boolean
+  refresh: RefreshScheduler
 }
 
 function blankTrack(job: MemJob, tick: number): Track {
@@ -89,6 +97,9 @@ export function makeDevice(opts: {
   banks?: number
   manual?: boolean
   trace?: boolean
+  refresh?: boolean
+  refreshInterval?: number
+  refreshBusy?: number
 }): Device {
   const defaults = opts.kind === 'sdr' ? CUPPU_SDR : CUPPU_DDR
   const period = opts.period ?? defaults.clock
@@ -115,6 +126,13 @@ export function makeDevice(opts: {
     beats: [],
     trace: opts.trace ?? false,
     manual: opts.manual ?? false,
+    refresh: makeRefresh({
+      enabled: opts.refresh ?? false,
+      intervalTicks: opts.refreshInterval ?? COMMODITY_REFRESH_INTERVAL_TICKS,
+      busyTicks: opts.refreshBusy ?? refreshBusyTicks(opts.kind),
+      mode: 'commodity',
+      bankCount: opts.banks ?? defaults.banks,
+    }),
   }
 }
 
@@ -126,6 +144,9 @@ export function makeSdr(opts?: {
   banks?: number
   manual?: boolean
   trace?: boolean
+  refresh?: boolean
+  refreshInterval?: number
+  refreshBusy?: number
 }): Device {
   return makeDevice({ kind: 'sdr', ...opts })
 }
@@ -138,6 +159,9 @@ export function makeDdr(opts?: {
   banks?: number
   manual?: boolean
   trace?: boolean
+  refresh?: boolean
+  refreshInterval?: number
+  refreshBusy?: number
 }): Device {
   return makeDevice({ kind: 'ddr', ...opts })
 }
@@ -295,7 +319,8 @@ export function stepDevice(device: Device, cmd?: ManualCmd): Device {
     device.coreSteps += 1
     device.core = stepCore(device.core)
     markActive(device)
-    if (device.manual) applyManual(device, cmd)
+    if (refreshBlocksAll(device.refresh)) shiftColumn(device, undefined)
+    else if (device.manual) applyManual(device, cmd)
     else applyAuto(device)
     if (device.kind === 'sdr') drainSdr(device)
     else drainDdr(device)
@@ -306,6 +331,7 @@ export function stepDevice(device: Device, cmd?: ManualCmd): Device {
   }
   noteOverlap(device)
   device.tick += 1
+  device.refresh = tickRefresh(device.refresh, device.tick)
   return device
 }
 

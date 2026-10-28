@@ -99,9 +99,9 @@ export function runJedec(
   arch: 'sdr' | 'ddr',
   jobs: readonly Job[],
   concurrency: number,
-  opts?: { open?: { bank: number; row: number } },
+  opts?: { open?: { bank: number; row: number }; refresh?: 'off' | 'on' },
 ): { ticks: number; tracks: Track[] } {
-  const device = arch === 'sdr' ? makeSdr() : makeDdr()
+  const device = arch === 'sdr' ? makeSdr({ refresh: opts?.refresh === 'on' }) : makeDdr({ refresh: opts?.refresh === 'on' })
   if (opts?.open) primeRow(device, opts.open.bank, opts.open.row)
   let next = 0
   const live = new Set<number>()
@@ -127,9 +127,12 @@ export function runJedec(
 export function runRdram(
   jobs: readonly Job[],
   concurrency: number,
-  opts?: { open?: { bank: number; row: number }; headerOctcycles?: number },
+  opts?: { open?: { bank: number; row: number }; headerOctcycles?: number; refresh?: 'off' | 'on' },
 ): { ticks: number; txns: RdramTxn[] } {
-  const rdram = makeRdram({ headerOctcycles: opts?.headerOctcycles ?? 1 })
+  const rdram = makeRdram({
+    headerOctcycles: opts?.headerOctcycles ?? 1,
+    refresh: opts?.refresh === 'on',
+  })
   if (opts?.open) openRow(rdram, opts.open.bank, opts.open.row)
   const waiting = jobs.slice(0, Math.min(concurrency, jobs.length))
   let next = waiting.length
@@ -162,7 +165,7 @@ export function runArch(
   jobs: readonly Job[],
   concurrency: number,
   locality: number,
-  opts?: { open?: { bank: number; row: number } },
+  opts?: { open?: { bank: number; row: number }; refresh?: 'off' | 'on' },
 ): RunRow {
   const burst = jobs[0]?.burst ?? 0
   if (arch === 'rdram') {
@@ -188,6 +191,9 @@ export function runArch(
     }
   }
   const adapted = jobs.map((job) => ({ ...job, bank: job.bank % 4 }))
-  const result = runJedec(arch, adapted, concurrency, opts?.open ? { open: { bank: opts.open.bank % 4, row: opts.open.row } } : undefined)
+  const result = runJedec(arch, adapted, concurrency, {
+    open: opts?.open ? { bank: opts.open.bank % 4, row: opts.open.row } : undefined,
+    refresh: opts?.refresh,
+  })
   return fromTracks(scenario, arch, burst, locality, concurrency, result.ticks, result.tracks)
 }
