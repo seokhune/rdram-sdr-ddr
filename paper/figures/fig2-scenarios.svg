@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="420" viewBox="0 0 980 420">
+<rect width="980" height="420" fill="#fff"/>
+<rect x="24" y="160" width="170" height="80" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="109" y="188" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">아홉 시나리오</text>
+<rect x="250" y="24" width="220" height="64" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="360" y="52" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">지연 곡선</text>
+<text x="360" y="74" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">burst</text>
+<rect x="250" y="108" width="220" height="64" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="360" y="136" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">지역성</text>
+<text x="360" y="158" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">row-hit · miss · pipeline</text>
+<rect x="250" y="192" width="220" height="64" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="360" y="220" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">동시성</text>
+<text x="360" y="242" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">multi</text>
+<rect x="250" y="276" width="220" height="64" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="360" y="304" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">리프레시</text>
+<text x="360" y="326" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">sustain · single-bank</text>
+<rect x="520" y="150" width="220" height="80" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="630" y="178" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">고정 검사</text>
+<text x="630" y="200" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">parts · fixed</text>
+<line x1="194" y1="190" x2="250" y2="56" stroke="#000" stroke-width="1.5"/>
+<polygon points="250,56 250.0331963740333,63.999931124750454 244.2843288173986,61.59741931003744" fill="#000"/>
+<line x1="194" y1="190" x2="250" y2="140" stroke="#000" stroke-width="1.5"/>
+<polygon points="250,140 246.57843738203456,147.2313836332573 242.42869727266378,142.583674710762" fill="#000"/>
+<line x1="194" y1="200" x2="250" y2="224" stroke="#000" stroke-width="1.5"/>
+<polygon points="250,224 242.00009571810136,223.96086586579696 244.45448612219874,218.23395492290308" fill="#000"/>
+<line x1="194" y1="210" x2="250" y2="308" stroke="#000" stroke-width="1.5"/>
+<polygon points="250,308 243.63932776917247,303.1480056912668 249.04908465120383,300.05671604439175" fill="#000"/>
+<line x1="194" y1="200" x2="520" y2="190" stroke="#000" stroke-width="1.5"/>
+<polygon points="520,190 512.7304941342262,193.3398030581877 512.539458423481,187.1120388878949" fill="#000"/>
+</svg>

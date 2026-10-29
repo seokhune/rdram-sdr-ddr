@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="520" viewBox="0 0 920 520">
+<rect width="920" height="520" fill="#fff"/>
+<rect x="330" y="24" width="260" height="64" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="460" y="52" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">params.ts</text>
+<text x="460" y="74" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">타이밍 상수</text>
+<rect x="40" y="150" width="250" height="72" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="165" y="178" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">jedec.ts</text>
+<text x="165" y="200" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">SDR·DDR 인터페이스</text>
+<rect x="630" y="150" width="250" height="72" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="755" y="178" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">rdram.ts</text>
+<text x="755" y="200" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">채널과 헤더</text>
+<rect x="630" y="270" width="250" height="72" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="755" y="298" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">outstanding.ts</text>
+<text x="755" y="320" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">미처리 상한 4</text>
+<rect x="330" y="250" width="260" height="64" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="460" y="278" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">bank.ts</text>
+<text x="460" y="300" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">뱅크 상태</text>
+<rect x="40" y="360" width="250" height="72" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="165" y="388" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">refresh.ts</text>
+<text x="165" y="410" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">리프레시 자명종</text>
+<rect x="330" y="390" width="260" height="64" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="460" y="418" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">delay.ts</text>
+<text x="460" y="440" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">지연 큐</text>
+<rect x="630" y="400" width="250" height="64" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="755" y="428" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">metrics</text>
+<text x="755" y="450" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">측정과 CSV</text>
+<line x1="460" y1="88" x2="165" y2="150" stroke="#000" stroke-width="1.5"/>
+<polygon points="165,150 171.57019823630924,145.43573717500857 172.85170293095143,151.53321918983835" fill="#000"/>
+<line x1="460" y1="88" x2="755" y2="150" stroke="#000" stroke-width="1.5"/>
+<polygon points="755,150 747.1482970690486,151.53321918983835 748.4298017636908,145.43573717500857" fill="#000"/>
+<line x1="755" y1="222" x2="755" y2="270" stroke="#000" stroke-width="1.5"/>
+<polygon points="755,270 751.8846532615308,262.6315120479769 758.1153467384692,262.6315120479769" fill="#000"/>
+<line x1="165" y1="222" x2="400" y2="250" stroke="#000" stroke-width="1.5"/>
+<polygon points="400,250 392.3146817395777,252.22168477422403 393.05184809964715,246.03475282364104" fill="#000"/>
+<line x1="630" y1="186" x2="590" y2="270" stroke="#000" stroke-width="1.5"/>
+<polygon points="590,270 590.3552368346805,262.00789096725487 595.9806839799019,264.68667532212226" fill="#000"/>
+<line x1="165" y1="360" x2="400" y2="314" stroke="#000" stroke-width="1.5"/>
+<polygon points="400,314 393.3672012554505,318.47280458038387 392.1702910037813,312.3581543816389" fill="#000"/>
+<line x1="460" y1="314" x2="460" y2="390" stroke="#000" stroke-width="1.5"/>
+<polygon points="460,390 456.8846532615308,382.6315120479769 463.1153467384692,382.6315120479769" fill="#000"/>
+<line x1="590" y1="422" x2="630" y2="430" stroke="#000" stroke-width="1.5"/>
+<polygon points="630,430 622.1636333432209,431.6097694308566 623.3855728671488,425.5000718112173" fill="#000"/>
+</svg>

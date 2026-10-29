@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="460" viewBox="0 0 980 460">
+<rect width="980" height="460" fill="#fff"/>
+<rect x="340" y="20" width="300" height="64" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="490" y="48" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">리프레시 이벤트</text>
+<rect x="40" y="150" width="400" height="96" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="240" y="178" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">커머디티</text>
+<text x="240" y="200" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">전 뱅크 동시 정지</text>
+<text x="240" y="222" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">간격 12,500틱, 길이 40틱과 32틱</text>
+<rect x="540" y="150" width="400" height="96" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="740" y="178" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">Direct RDRAM</text>
+<text x="740" y="200" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">뱅크 1개 순환 잠금</text>
+<text x="740" y="222" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">간격 1,562틱, 길이 30틱</text>
+<rect x="40" y="320" width="400" height="80" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="240" y="348" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">새 명령은 모두 대기</text>
+<text x="240" y="370" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">진행 중 데이터는 계속</text>
+<rect x="540" y="320" width="400" height="80" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="740" y="348" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">잠긴 뱅크만 대기</text>
+<text x="740" y="370" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">채널과 나머지 15뱅크는 가동</text>
+<line x1="420" y1="84" x2="240" y2="150" stroke="#000" stroke-width="1.5"/>
+<polygon points="240,150 245.84562622359175,144.5384384967249 247.99057142050884,150.38828903377154" fill="#000"/>
+<line x1="560" y1="84" x2="740" y2="150" stroke="#000" stroke-width="1.5"/>
+<polygon points="740,150 732.0094285794911,150.38828903377154 734.1543737764083,144.5384384967249" fill="#000"/>
+<line x1="240" y1="246" x2="240" y2="320" stroke="#000" stroke-width="1.5"/>
+<polygon points="240,320 236.8846532615308,312.6315120479769 243.1153467384692,312.6315120479769" fill="#000"/>
+<line x1="740" y1="246" x2="740" y2="320" stroke="#000" stroke-width="1.5"/>
+<polygon points="740,320 736.8846532615308,312.6315120479769 743.1153467384692,312.6315120479769" fill="#000"/>
+</svg>

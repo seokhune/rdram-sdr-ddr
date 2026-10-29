@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="560" viewBox="0 0 920 560">
+<rect width="920" height="560" fill="#fff"/>
+<line x1="86" y1="452.0" x2="884" y2="452.0" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="457" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">0</text>
+<line x1="86" y1="367.2" x2="884" y2="367.2" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="372.2" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">20</text>
+<line x1="86" y1="282.4" x2="884" y2="282.4" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="287.4" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">40</text>
+<line x1="86" y1="197.6" x2="884" y2="197.6" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="202.6" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">60</text>
+<line x1="86" y1="112.8" x2="884" y2="112.8" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="117.8" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">80</text>
+<line x1="86" y1="28.0" x2="884" y2="28.0" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="33" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">100</text>
+<line x1="86" y1="28" x2="86" y2="452" stroke="#000" stroke-width="1.6"/>
+<line x1="86" y1="452" x2="884" y2="452" stroke="#000" stroke-width="1.6"/>
+<line x1="143" y1="452" x2="143" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="143" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">1</text>
+<line x1="257" y1="452" x2="257" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="257" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">2</text>
+<line x1="371" y1="452" x2="371" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="371" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">4</text>
+<line x1="485" y1="452" x2="485" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="485" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">8</text>
+<line x1="599" y1="452" x2="599" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="599" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">16</text>
+<line x1="713" y1="452" x2="713" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="713" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">32</text>
+<line x1="827" y1="452" x2="827" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="827" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">64</text>
+<polyline fill="none" stroke="#000" stroke-width="2.2" stroke-dasharray="2 4" points="143.0,409.6 257.0,367.2 371.0,307.8 485.0,240.0 599.0,167.9 713.0,112.8 827.0,74.6"/>
+<polygon points="143.0,403.6 137,409.65 143.06,409.65" fill="#000"/>
+<polygon points="257.0,361.2 251,367.25 257.06,367.25" fill="#000"/>
+<polygon points="371.0,301.8 365,307.85 371.06,307.85" fill="#000"/>
+<polygon points="485.0,234 479,240.05 485.06,240.05" fill="#000"/>
+<polygon points="599.0,161.9 593,167.95 599.06,167.95" fill="#000"/>
+<polygon points="713.0,106.8 707,112.85 713.06,112.85" fill="#000"/>
+<polygon points="827.0,68.6 821,74.65 827.06,74.65" fill="#000"/>
+<line x1="86" y1="532" x2="122" y2="532" stroke="#000" stroke-width="2.2" stroke-dasharray="2 4"/>
+<polygon points="104,526 98,537 110,537" fill="#000"/>
+<text x="132" y="538" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">RDRAM</text>
+<text x="485" y="492" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">버스트 길이 (워드)</text>
+<text x="26" y="240" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000" transform="rotate(-90 26 240)">채널 효율 (%)</text>
+</svg>

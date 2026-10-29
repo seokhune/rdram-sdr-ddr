@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="560" viewBox="0 0 920 560">
+<rect width="920" height="560" fill="#fff"/>
+<line x1="86" y1="452.0" x2="884" y2="452.0" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="457" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">0</text>
+<line x1="86" y1="357.8" x2="884" y2="357.8" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="362.8" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">400</text>
+<line x1="86" y1="263.6" x2="884" y2="263.6" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="268.6" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">800</text>
+<line x1="86" y1="169.3" x2="884" y2="169.3" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="174.3" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">1200</text>
+<line x1="86" y1="75.1" x2="884" y2="75.1" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="80.1" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">1600</text>
+<line x1="86" y1="28" x2="86" y2="452" stroke="#000" stroke-width="1.6"/>
+<line x1="86" y1="452" x2="884" y2="452" stroke="#000" stroke-width="1.6"/>
+<line x1="143" y1="452" x2="143" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="143" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">1</text>
+<line x1="257" y1="452" x2="257" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="257" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">2</text>
+<line x1="371" y1="452" x2="371" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="371" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">4</text>
+<line x1="485" y1="452" x2="485" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="485" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">8</text>
+<line x1="599" y1="452" x2="599" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="599" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">16</text>
+<line x1="713" y1="452" x2="713" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="713" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">32</text>
+<line x1="827" y1="452" x2="827" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="827" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">64</text>
+<line x1="86" y1="263.6" x2="884" y2="263.6" stroke="#000" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text x="878" y="257.6" text-anchor="end" font-size="15" font-family="Batang, 'Malgun Gothic', serif" fill="#000">SDR 상한 800</text>
+<line x1="86" y1="75.1" x2="884" y2="75.1" stroke="#000" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text x="878" y="69.1" text-anchor="end" font-size="15" font-family="Batang, 'Malgun Gothic', serif" fill="#000">DDR·RDRAM 상한 1600</text>
+<polyline fill="none" stroke="#000" stroke-width="2.2" stroke-dasharray="" points="143.0,389.3 257.0,357.8 371.0,326.4 485.0,301.2 599.0,284.5 713.0,274.9 827.0,269.4"/>
+<circle cx="143.0" cy="389.3" r="5" fill="#000"/>
+<circle cx="257.0" cy="357.8" r="5" fill="#000"/>
+<circle cx="371.0" cy="326.4" r="5" fill="#000"/>
+<circle cx="485.0" cy="301.2" r="5" fill="#000"/>
+<circle cx="599.0" cy="284.5" r="5" fill="#000"/>
+<circle cx="713.0" cy="274.9" r="5" fill="#000"/>
+<circle cx="827.0" cy="269.4" r="5" fill="#000"/>
+<polyline fill="none" stroke="#000" stroke-width="2.2" stroke-dasharray="9 5" points="143.0,357.8 257.0,301.2 371.0,236.7 485.0,178.0 599.0,134.7 713.0,107.6 827.0,92.1"/>
+<rect x="138.5" y="353.3" width="9" height="9" fill="#000"/>
+<rect x="252.5" y="296.7" width="9" height="9" fill="#000"/>
+<rect x="366.5" y="232.2" width="9" height="9" fill="#000"/>
+<rect x="480.5" y="173.5" width="9" height="9" fill="#000"/>
+<rect x="594.5" y="130.2" width="9" height="9" fill="#000"/>
+<rect x="708.5" y="103.1" width="9" height="9" fill="#000"/>
+<rect x="822.5" y="87.6" width="9" height="9" fill="#000"/>
+<polyline fill="none" stroke="#000" stroke-width="2.2" stroke-dasharray="2 4" points="143.0,413.4 257.0,374.7 371.0,323.9 485.0,260.7 599.0,198.3 713.0,148.6 827.0,115.9"/>
+<polygon points="143.0,407.4 137,413.45 143.06,413.45" fill="#000"/>
+<polygon points="257.0,368.7 251,374.75 257.06,374.75" fill="#000"/>
+<polygon points="371.0,317.9 365,323.95 371.06,323.95" fill="#000"/>
+<polygon points="485.0,254.7 479,260.75 485.06,260.75" fill="#000"/>
+<polygon points="599.0,192.3 593,198.35 599.06,198.35" fill="#000"/>
+<polygon points="713.0,142.6 707,148.65 713.06,148.65" fill="#000"/>
+<polygon points="827.0,109.9 821,115.95 827.06,115.95" fill="#000"/>
+<line x1="86" y1="532" x2="122" y2="532" stroke="#000" stroke-width="2.2" stroke-dasharray=""/>
+<circle cx="104" cy="532" r="5" fill="#000"/>
+<text x="132" y="538" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">SDR</text>
+<line x1="236" y1="532" x2="272" y2="532" stroke="#000" stroke-width="2.2" stroke-dasharray="9 5"/>
+<rect x="249.5" y="527.5" width="9" height="9" fill="#000"/>
+<text x="282" y="538" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">DDR</text>
+<line x1="386" y1="532" x2="422" y2="532" stroke="#000" stroke-width="2.2" stroke-dasharray="2 4"/>
+<polygon points="404,526 398,537 410,537" fill="#000"/>
+<text x="432" y="538" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">RDRAM</text>
+<text x="485" y="492" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">버스트 길이 (워드)</text>
+<text x="26" y="240" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000" transform="rotate(-90 26 240)">대역폭 (MB/s)</text>
+</svg>
