@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="560" viewBox="0 0 920 560">
+<rect width="920" height="560" fill="#fff"/>
+<line x1="86" y1="452.0" x2="884" y2="452.0" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="457" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">0</text>
+<line x1="86" y1="348.0" x2="884" y2="348.0" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="353" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">140</text>
+<line x1="86" y1="244.0" x2="884" y2="244.0" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="249" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">280</text>
+<line x1="86" y1="140.0" x2="884" y2="140.0" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="145" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">420</text>
+<line x1="86" y1="36.0" x2="884" y2="36.0" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="41" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">560</text>
+<line x1="86" y1="36" x2="86" y2="452" stroke="#000" stroke-width="1.6"/>
+<line x1="86" y1="452" x2="884" y2="452" stroke="#000" stroke-width="1.6"/>
+<line x1="143" y1="452" x2="143" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="143" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">1</text>
+<line x1="257" y1="452" x2="257" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="257" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">2</text>
+<line x1="371" y1="452" x2="371" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="371" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">4</text>
+<line x1="485" y1="452" x2="485" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="485" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">8</text>
+<line x1="599" y1="452" x2="599" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="599" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">16</text>
+<line x1="713" y1="452" x2="713" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="713" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">32</text>
+<line x1="827" y1="452" x2="827" y2="459" stroke="#000" stroke-width="1.2"/>
+<text x="827" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">64</text>
+<line x1="371.0" y1="36" x2="371.0" y2="452" stroke="#000" stroke-width="1.2" stroke-dasharray="2 4"/>
+<text x="379.0" y="56" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">역전</text>
+<polyline fill="none" stroke="#000" stroke-width="2.2" stroke-dasharray="" points="143.0,434.2 257.0,428.2 323.7,422.3 371.0,416.3 407.7,410.4 437.7,404.5 463.0,398.5 485.0,392.6 504.4,386.6 521.7,380.7 537.4,374.7 551.7,368.8 564.9,362.9 577.0,356.9 588.4,351.0 599.0,345.0 609.0,339.1 618.4,333.1 627.3,327.2 635.7,321.3 643.7,315.3 651.4,309.4 658.7,303.4 665.7,297.5 672.4,291.5 678.9,285.6 685.1,279.7 691.0,273.7 696.8,267.8 702.4,261.8 707.8,255.9 713.0,249.9 718.1,244.0 723.0,238.1 727.7,232.1 732.4,226.2 736.9,220.2 741.3,214.3 745.5,208.3 749.7,202.4 753.8,196.5 757.7,190.5 761.6,184.6 765.4,178.6 769.1,172.7 772.7,166.7 776.2,160.8 779.7,154.9 783.1,148.9 786.4,143.0 789.7,137.0 792.9,131.1 796.0,125.1 799.1,119.2 802.1,113.3 805.0,107.3 807.9,101.4 810.8,95.4 813.6,89.5 816.4,83.5 819.1,77.6 821.8,71.7 824.4,65.7 827.0,59.8"/>
+<circle cx="143.0" cy="434.2" r="5" fill="#000"/>
+<circle cx="257.0" cy="428.2" r="5" fill="#000"/>
+<circle cx="371.0" cy="416.3" r="5" fill="#000"/>
+<circle cx="485.0" cy="392.6" r="5" fill="#000"/>
+<circle cx="599.0" cy="345.0" r="5" fill="#000"/>
+<circle cx="713.0" cy="249.9" r="5" fill="#000"/>
+<circle cx="827.0" cy="59.8" r="5" fill="#000"/>
+<polyline fill="none" stroke="#000" stroke-width="2.2" stroke-dasharray="9 5" points="143.0,440.1 257.0,437.1 323.7,434.2 371.0,431.2 407.7,428.2 437.7,425.3 463.0,422.3 485.0,419.3 504.4,416.3 521.7,413.4 537.4,410.4 551.7,407.4 564.9,404.5 577.0,401.5 588.4,398.5 599.0,395.5 609.0,392.6 618.4,389.6 627.3,386.6 635.7,383.7 643.7,380.7 651.4,377.7 658.7,374.7 665.7,371.8 672.4,368.8 678.9,365.8 685.1,362.9 691.0,359.9 696.8,356.9 702.4,353.9 707.8,351.0 713.0,348.0 718.1,345.0 723.0,342.1 727.7,339.1 732.4,336.1 736.9,333.1 741.3,330.2 745.5,327.2 749.7,324.2 753.8,321.3 757.7,318.3 761.6,315.3 765.4,312.3 769.1,309.4 772.7,306.4 776.2,303.4 779.7,300.5 783.1,297.5 786.4,294.5 789.7,291.5 792.9,288.6 796.0,285.6 799.1,282.6 802.1,279.7 805.0,276.7 807.9,273.7 810.8,270.7 813.6,267.8 816.4,264.8 819.1,261.8 821.8,258.9 824.4,255.9 827.0,252.9"/>
+<rect x="138.5" y="435.6" width="9" height="9" fill="#000"/>
+<rect x="252.5" y="432.6" width="9" height="9" fill="#000"/>
+<rect x="366.5" y="426.7" width="9" height="9" fill="#000"/>
+<rect x="480.5" y="414.8" width="9" height="9" fill="#000"/>
+<rect x="594.5" y="391.0" width="9" height="9" fill="#000"/>
+<rect x="708.5" y="343.5" width="9" height="9" fill="#000"/>
+<rect x="822.5" y="248.4" width="9" height="9" fill="#000"/>
+<polyline fill="none" stroke="#000" stroke-width="2.2" stroke-dasharray="2 4" points="143.0,423.0 257.0,423.0 323.7,417.1 371.0,417.1 407.7,411.1 437.7,411.1 463.0,405.2 485.0,405.2 504.4,399.3 521.7,399.3 537.4,393.3 551.7,393.3 564.9,387.4 577.0,387.4 588.4,381.4 599.0,381.4 609.0,375.5 618.4,375.5 627.3,369.5 635.7,369.5 643.7,363.6 651.4,363.6 658.7,357.7 665.7,357.7 672.4,351.7 678.9,351.7 685.1,345.8 691.0,345.8 696.8,339.8 702.4,339.8 707.8,333.9 713.0,333.9 718.1,327.9 723.0,327.9 727.7,322.0 732.4,322.0 736.9,316.1 741.3,316.1 745.5,310.1 749.7,310.1 753.8,304.2 757.7,304.2 761.6,298.2 765.4,298.2 769.1,292.3 772.7,292.3 776.2,286.3 779.7,286.3 783.1,280.4 786.4,280.4 789.7,274.5 792.9,274.5 796.0,268.5 799.1,268.5 802.1,262.6 805.0,262.6 807.9,256.6 810.8,256.6 813.6,250.7 816.4,250.7 819.1,244.7 821.8,244.7 824.4,238.8 827.0,238.8"/>
+<polygon points="143.0,417.0 137.0,428.0 149.0,428.0" fill="#000"/>
+<polygon points="257.0,417.0 251.0,428.0 263.0,428.0" fill="#000"/>
+<polygon points="371.0,411.1 365.0,422.1 377.0,422.1" fill="#000"/>
+<polygon points="485.0,399.2 479.0,410.2 491.0,410.2" fill="#000"/>
+<polygon points="599.0,375.4 593.0,386.4 605.0,386.4" fill="#000"/>
+<polygon points="713.0,327.9 707.0,338.9 719.0,338.9" fill="#000"/>
+<polygon points="827.0,232.8 821.0,243.8 833.0,243.8" fill="#000"/>
+<line x1="86" y1="538" x2="122" y2="538" stroke="#000" stroke-width="2.2" stroke-dasharray=""/>
+<circle cx="104.0" cy="538.0" r="5" fill="#000"/>
+<text x="132" y="544" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">SDR</text>
+<line x1="236" y1="538" x2="272" y2="538" stroke="#000" stroke-width="2.2" stroke-dasharray="9 5"/>
+<rect x="249.5" y="533.5" width="9" height="9" fill="#000"/>
+<text x="282" y="544" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">DDR</text>
+<line x1="386" y1="538" x2="422" y2="538" stroke="#000" stroke-width="2.2" stroke-dasharray="2 4"/>
+<polygon points="404.0,532.0 398.0,543.0 410.0,543.0" fill="#000"/>
+<text x="432" y="544" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">RDRAM</text>
+<text x="485" y="508" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">버스트 길이 b (log₂)</text>
+<text x="26" y="244" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000" transform="rotate(-90 26 244)">첫 지연 (틱)</text>
+</svg>

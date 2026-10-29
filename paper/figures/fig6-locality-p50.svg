@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="560" viewBox="0 0 920 560">
+<rect width="920" height="560" fill="#fff"/>
+<defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="6" height="6"><line x1="0" y1="6" x2="6" y2="0" stroke="#000" stroke-width="1.4"/></pattern></defs>
+<line x1="86" y1="452.0" x2="884" y2="452.0" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="457" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">0</text>
+<line x1="86" y1="313.3" x2="884" y2="313.3" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="318.3" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">100</text>
+<line x1="86" y1="174.7" x2="884" y2="174.7" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="179.7" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">200</text>
+<line x1="86" y1="36.0" x2="884" y2="36.0" stroke="#000" stroke-width="0.6"/>
+<text x="74" y="41" text-anchor="end" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">300</text>
+<line x1="86" y1="36" x2="86" y2="452" stroke="#000" stroke-width="1.6"/>
+<line x1="86" y1="452" x2="884" y2="452" stroke="#000" stroke-width="1.6"/>
+<text x="219" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">row-hit</text>
+<rect x="169.0" y="331.4" width="28" height="120.6" fill="#000"/>
+<text x="183.0" y="323.4" text-anchor="middle" font-size="15" font-family="Batang, 'Malgun Gothic', serif" fill="#000">87</text>
+<rect x="205.0" y="386.8" width="28" height="65.2" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="219.0" y="378.8" text-anchor="middle" font-size="15" font-family="Batang, 'Malgun Gothic', serif" fill="#000">47</text>
+<rect x="241.0" y="364.6" width="28" height="87.4" fill="url(#hatch)" stroke="#000" stroke-width="1.2"/>
+<text x="255.0" y="356.6" text-anchor="middle" font-size="15" font-family="Batang, 'Malgun Gothic', serif" fill="#000">63</text>
+<text x="485" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">row-miss</text>
+<rect x="435.0" y="275.9" width="28" height="176.1" fill="#000"/>
+<text x="449.0" y="267.9" text-anchor="middle" font-size="15" font-family="Batang, 'Malgun Gothic', serif" fill="#000">127</text>
+<rect x="471.0" y="342.5" width="28" height="109.5" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="485.0" y="334.5" text-anchor="middle" font-size="15" font-family="Batang, 'Malgun Gothic', serif" fill="#000">79</text>
+<rect x="507.0" y="334.1" width="28" height="117.9" fill="url(#hatch)" stroke="#000" stroke-width="1.2"/>
+<text x="521.0" y="326.1" text-anchor="middle" font-size="15" font-family="Batang, 'Malgun Gothic', serif" fill="#000">85</text>
+<text x="751" y="482" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">pipeline 동시 4</text>
+<rect x="701.0" y="98.4" width="28" height="353.6" fill="#000"/>
+<text x="715.0" y="90.4" text-anchor="middle" font-size="15" font-family="Batang, 'Malgun Gothic', serif" fill="#000">255</text>
+<rect x="737.0" y="275.9" width="28" height="176.1" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="751.0" y="267.9" text-anchor="middle" font-size="15" font-family="Batang, 'Malgun Gothic', serif" fill="#000">127</text>
+<rect x="773.0" y="231.5" width="28" height="220.5" fill="url(#hatch)" stroke="#000" stroke-width="1.2"/>
+<text x="787.0" y="223.5" text-anchor="middle" font-size="15" font-family="Batang, 'Malgun Gothic', serif" fill="#000">159</text>
+<rect x="86" y="530" width="22" height="14" fill="#000"/>
+<text x="116" y="542" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">SDR</text>
+<rect x="256" y="530" width="22" height="14" fill="#fff" stroke="#000" stroke-width="1.6"/>
+<text x="286" y="542" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">DDR</text>
+<rect x="426" y="530" width="22" height="14" fill="url(#hatch)" stroke="#000" stroke-width="1.2"/>
+<text x="456" y="542" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">RDRAM</text>
+<text x="26" y="244" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000" transform="rotate(-90 26 244)">P50 (틱)</text>
+</svg>

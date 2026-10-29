@@ -13,3 +13,9 @@ b = 1부터 64까지 192점 대조: sweep/closed-form-192.ts, 불일치 0.
 proof/의 세 정리: Lean 4.35.0 재컴파일 오류 0·경고 0. #print axioms는 fifo_emergence [propext], rdram_beats_sdr과 ddr_wins_all [propext, Quot.sound]이다.
 6446 / 1562 = 4.127. 1차본의 약 4.1배와 맞다.
 점유율 40/12500 = 0.32%, 32/12500 = 0.26%, 30/1562 = 1.92%.
+
+그림 3 버스트 지연. 곡선은 식 (1)~(3)의 b = 1..64. 점은 CSV burst 행의 ticks. 검산은 b = 1에서 24/16/39, b = 4에서 SDR 48과 RDRAM 47, b = 8에서 80/44/63, b = 64에서 528/268/287.
+그림 4는 표 3의 대역폭이다. 그림 5는 표 3의 RDRAM 효율이다.
+그림 6 지역성 P50. 출처는 CSV latP50. row-hit 87/47/63, row-miss 127/79/85, pipeline 255/127/159. 최대 겹침은 그리지 않는다.
+그림 7은 표 5의 동시성 대역폭이다. 그림 8은 리프레시 개념도이고 CSV 숫자가 없다.
+그림 9 간격 스윕. off 행은 sustain-baseline rdram의 ticks. 증가(ticks 차)는 238/58/230. refreshAddedLatencyMax는 1285/32/292. 행은 sustain-refresh-r50, sustain-refresh, sustain-refresh-r150.

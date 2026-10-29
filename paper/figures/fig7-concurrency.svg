@@ -29,25 +29,25 @@
 <polyline fill="none" stroke="#000" stroke-width="2.2" stroke-dasharray="9 5" points="185.8,294.3 385.3,187.0 584.8,103.5 784.3,87.6"/>
 <rect x="181.3" y="289.8" width="9" height="9" fill="#000"/>
 <rect x="380.8" y="182.5" width="9" height="9" fill="#000"/>
-<rect x="580.3" y="99" width="9" height="9" fill="#000"/>
+<rect x="580.3" y="99.0" width="9" height="9" fill="#000"/>
 <rect x="779.8" y="83.1" width="9" height="9" fill="#000"/>
 <polyline fill="none" stroke="#000" stroke-width="2.2" stroke-dasharray="2 4" points="185.8,326.1 385.3,241.3 584.8,148.6 784.3,160.5"/>
-<polygon points="185.8,320.1 179.8,326.15 185.86,326.15" fill="#000"/>
-<polygon points="385.3,235.3 379.3,241.35 385.36,241.35" fill="#000"/>
-<polygon points="584.8,142.6 578.8,148.65 584.86,148.65" fill="#000"/>
-<polygon points="784.3,154.5 778.3,160.55 784.36,160.55" fill="#000"/>
+<polygon points="185.8,320.1 179.8,331.1 191.8,331.1" fill="#000"/>
+<polygon points="385.3,235.3 379.3,246.3 391.3,246.3" fill="#000"/>
+<polygon points="584.8,142.6 578.8,153.6 590.8,153.6" fill="#000"/>
+<polygon points="784.3,154.5 778.3,165.5 790.3,165.5" fill="#000"/>
 <line x1="584.75" y1="126.57500000000005" x2="784.25" y2="126.57500000000005" stroke="#000" stroke-width="1.4"/>
 <line x1="584.75" y1="120.57500000000005" x2="584.75" y2="132.57500000000005" stroke="#000" stroke-width="1.4"/>
 <line x1="784.25" y1="120.57500000000005" x2="784.25" y2="132.57500000000005" stroke="#000" stroke-width="1.4"/>
 <text x="684.5" y="116.57500000000005" text-anchor="middle" font-size="16" font-family="Batang, 'Malgun Gothic', serif" fill="#000">RDRAM 229에서 220</text>
 <line x1="86" y1="532" x2="122" y2="532" stroke="#000" stroke-width="2.2" stroke-dasharray=""/>
-<circle cx="104" cy="532" r="5" fill="#000"/>
+<circle cx="104.0" cy="532.0" r="5" fill="#000"/>
 <text x="132" y="538" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">SDR</text>
 <line x1="236" y1="532" x2="272" y2="532" stroke="#000" stroke-width="2.2" stroke-dasharray="9 5"/>
 <rect x="249.5" y="527.5" width="9" height="9" fill="#000"/>
 <text x="282" y="538" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">DDR</text>
 <line x1="386" y1="532" x2="422" y2="532" stroke="#000" stroke-width="2.2" stroke-dasharray="2 4"/>
-<polygon points="404,526 398,537 410,537" fill="#000"/>
+<polygon points="404.0,526.0 398.0,537.0 410.0,537.0" fill="#000"/>
 <text x="432" y="538" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">RDRAM</text>
 <text x="485" y="492" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">동시 요청 수</text>
 <text x="26" y="240" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000" transform="rotate(-90 26 240)">대역폭 (MB/s)</text>

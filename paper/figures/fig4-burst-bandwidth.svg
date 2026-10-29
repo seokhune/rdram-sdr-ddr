@@ -48,21 +48,21 @@
 <rect x="708.5" y="103.1" width="9" height="9" fill="#000"/>
 <rect x="822.5" y="87.6" width="9" height="9" fill="#000"/>
 <polyline fill="none" stroke="#000" stroke-width="2.2" stroke-dasharray="2 4" points="143.0,413.4 257.0,374.7 371.0,323.9 485.0,260.7 599.0,198.3 713.0,148.6 827.0,115.9"/>
-<polygon points="143.0,407.4 137,413.45 143.06,413.45" fill="#000"/>
-<polygon points="257.0,368.7 251,374.75 257.06,374.75" fill="#000"/>
-<polygon points="371.0,317.9 365,323.95 371.06,323.95" fill="#000"/>
-<polygon points="485.0,254.7 479,260.75 485.06,260.75" fill="#000"/>
-<polygon points="599.0,192.3 593,198.35 599.06,198.35" fill="#000"/>
-<polygon points="713.0,142.6 707,148.65 713.06,148.65" fill="#000"/>
-<polygon points="827.0,109.9 821,115.95 827.06,115.95" fill="#000"/>
+<polygon points="143.0,407.4 137.0,418.4 149.0,418.4" fill="#000"/>
+<polygon points="257.0,368.7 251.0,379.7 263.0,379.7" fill="#000"/>
+<polygon points="371.0,317.9 365.0,328.9 377.0,328.9" fill="#000"/>
+<polygon points="485.0,254.7 479.0,265.7 491.0,265.7" fill="#000"/>
+<polygon points="599.0,192.3 593.0,203.3 605.0,203.3" fill="#000"/>
+<polygon points="713.0,142.6 707.0,153.6 719.0,153.6" fill="#000"/>
+<polygon points="827.0,109.9 821.0,120.9 833.0,120.9" fill="#000"/>
 <line x1="86" y1="532" x2="122" y2="532" stroke="#000" stroke-width="2.2" stroke-dasharray=""/>
-<circle cx="104" cy="532" r="5" fill="#000"/>
+<circle cx="104.0" cy="532.0" r="5" fill="#000"/>
 <text x="132" y="538" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">SDR</text>
 <line x1="236" y1="532" x2="272" y2="532" stroke="#000" stroke-width="2.2" stroke-dasharray="9 5"/>
 <rect x="249.5" y="527.5" width="9" height="9" fill="#000"/>
 <text x="282" y="538" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">DDR</text>
 <line x1="386" y1="532" x2="422" y2="532" stroke="#000" stroke-width="2.2" stroke-dasharray="2 4"/>
-<polygon points="404,526 398,537 410,537" fill="#000"/>
+<polygon points="404.0,526.0 398.0,537.0 410.0,537.0" fill="#000"/>
 <text x="432" y="538" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">RDRAM</text>
 <text x="485" y="492" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000">버스트 길이 (워드)</text>
 <text x="26" y="240" text-anchor="middle" font-size="18" font-family="Batang, 'Malgun Gothic', serif" fill="#000" transform="rotate(-90 26 240)">대역폭 (MB/s)</text>
